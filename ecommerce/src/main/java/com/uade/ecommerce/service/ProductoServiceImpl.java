@@ -14,9 +14,9 @@ import com.uade.ecommerce.entity.Imagen;
 import com.uade.ecommerce.entity.Producto;
 import com.uade.ecommerce.exception.ProductoDuplicateException;
 import com.uade.ecommerce.exception.ProductoNotFoundException;
-import com.uade.ecommerce.repository.ImagenRepository;
+//import com.uade.ecommerce.repository.ImagenRepository;
 import com.uade.ecommerce.repository.ProductoRepository;
-import com.uade.ecommerce.spec.ProductoSpecification;
+//import com.uade.ecommerce.specification.ProductoSpecification;
 import org.springframework.data.jpa.domain.Specification;
 
 @Service
@@ -25,8 +25,8 @@ public class ProductoServiceImpl implements ProductoService {
     @Autowired
     private ProductoRepository productoRepository;
 
-    @Autowired
-    private ImagenRepository imagenRepository;
+    //@Autowired
+   // private ImagenRepository imagenRepository;
 
     @Autowired
     private CategoriaService categorias;
@@ -96,18 +96,18 @@ public class ProductoServiceImpl implements ProductoService {
 
         Producto productoConImagenes = productoRepository.save(nuevoProducto);
         // agregamos las imagenes
-        List<Imagen> imagenes = new ArrayList<>();
-        for (String imagenUrl : productoRequest.getImagenes()) {
-            Imagen imagen = new Imagen();
-            imagen.setImagen(imagenUrl);
-            imagen.setProducto(nuevoProducto);
-            imagenes.add(imagen);
-            imagenRepository.save(imagen); // Guarda cada imagen en la base de datos
-        }
+        //List<Imagen> imagenes = new ArrayList<>();
+        //for (String imagenUrl : productoRequest.getImagenes()) {
+          //  Imagen imagen = new Imagen();
+            //imagen.setImagen(imagenUrl);
+            //imagen.setProducto(nuevoProducto);
+            //imagenes.add(imagen);
+            //imagenRepository.save(imagen); // Guarda cada imagen en la base de datos
+       // }
         // Asocia las imágenes al producto
-        productoConImagenes.setImagenes(imagenes);
-        return productoConImagenes;
-    }
+       // productoConImagenes.setImagenes(imagenes);
+        //return productoConImagenes;
+    //}
 
     @Override
     public Producto updateProducto(int id, ProductoRequest productoRequest)
@@ -130,20 +130,20 @@ public class ProductoServiceImpl implements ProductoService {
         producto.setVentas_totales(productoRequest.getVentasTotales());
         producto.setDescuento(productoRequest.getDescuento());
         // eliminar las imagenes viejas
-        producto.getImagenes().clear(); // Limpia la lista de imágenes del producto
-        Producto productoConImagenes = productoRepository.save(producto); // Guarda el producto, JPA elimina las imágenes huérfanas
+       // producto.getImagenes().clear(); // Limpia la lista de imágenes del producto
+       // Producto productoConImagenes = productoRepository.save(producto); // Guarda el producto, JPA elimina las imágenes huérfanas
         // Guarda las nuevas imágenes en la base de datos
-        List<Imagen> imagenes = new ArrayList<>();
-        for (String imagenUrl : productoRequest.getImagenes()) {
-            Imagen imagen = new Imagen();
-            imagen.setImagen(imagenUrl);
-            imagen.setProducto(producto);
-            imagenes.add(imagen);
-            imagenRepository.save(imagen); // Guarda cada imagen en la base de datos
-        }
+       // List<Imagen> imagenes = new ArrayList<>();
+        //for (String imagenUrl : productoRequest.getImagenes()) {
+          //  Imagen imagen = new Imagen();
+            //imagen.setImagen(imagenUrl);
+            //imagen.setProducto(producto);
+            //imagenes.add(imagen);
+            //imagenRepository.save(imagen); // Guarda cada imagen en la base de datos
+        //}
         // Asocia las imágenes al producto
-        productoConImagenes.setImagenes(imagenes);
-        return productoConImagenes;
+       // productoConImagenes.setImagenes(imagenes);
+        //return productoConImagenes;
     }
 
     @Override
@@ -156,15 +156,15 @@ public class ProductoServiceImpl implements ProductoService {
         return productoRepository.findById(id);
     }
 
-    @Override
-    public Page<Producto> filtrarProductos(String nombre, String marca, Integer categoriaId, BigDecimal precioMin,
-            BigDecimal precioMax, Pageable pageable) {
-        Specification<Producto> spec = Specification.where(ProductoSpecification.nombreContains(nombre))
-                .and(ProductoSpecification.marcaEquals(marca))
-                .and(ProductoSpecification.categoriaIdEquals(categoriaId))
-                .and(ProductoSpecification.precioGreaterThanOrEqual(precioMin))
-                .and(ProductoSpecification.precioLessThanOrEqual(precioMax));
-        return productoRepository.findAll(spec, pageable);
-    }
+   // @Override
+    //public Page<Producto> filtrarProductos(String nombre, String marca, Integer categoriaId, BigDecimal precioMin,
+      //      BigDecimal precioMax, Pageable pageable) {
+        //Specification<Producto> spec = Specification.where(ProductoSpecification.nombreContains(nombre))
+          //      .and(ProductoSpecification.marcaEquals(marca))
+            //    .and(ProductoSpecification.categoriaIdEquals(categoriaId))
+              //  .and(ProductoSpecification.precioGreaterThanOrEqual(precioMin))
+              //  .and(ProductoSpecification.precioLessThanOrEqual(precioMax));
+       // return productoRepository.findAll(spec, pageable);
+   // }
 
 }
