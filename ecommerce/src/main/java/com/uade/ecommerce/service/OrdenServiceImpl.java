@@ -60,22 +60,15 @@ public class OrdenServiceImpl implements OrdenService {
                 .map(item -> item.getPrecio_unitario().multiply(new BigDecimal(item.getCantidad())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // 6. Obtener la dirección de envío si corresponde
-        Direccion direccionEnvio = null;
-        if (direccionId != null) {
-            direccionEnvio = direccionService.getDireccionById(direccionId)
-                    .filter(dir -> dir.getUsuario().getId() == usuario.getId())
-                    .orElseThrow(() -> new NoEncontradoException("Dirección no encontrada o no pertenece al usuario"));
-        }
 
-        // 7. Crear la orden
+        // 6. Crear la orden
         Orden orden = new Orden(usuario, totalCompra, LocalDateTime.now(), "FINALIZADA", direccionEnvio,
                 BigDecimal.ZERO);
 
-        // 8. Guardar la orden
+        // 7. Guardar la orden
         ordenRepository.save(orden);
 
-        // 9. Crear los detalles de la orden y actualizar el stock de los productos
+        // 8. Crear los detalles de la orden y actualizar el stock de los productos
         for (ItemCarrito item : carrito.getItemsCarrito()) {
             BigDecimal subtotal = item.getPrecio_unitario().multiply(BigDecimal.valueOf(item.getCantidad()));
 
