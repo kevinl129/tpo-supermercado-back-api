@@ -40,9 +40,6 @@ public class Producto {
     @Column(length = 50)
     private String marca;
 
-    @Column(length = 20)
-    private String unidad_medida;
-
     @Column(nullable = false, precision = 5, scale = 2, columnDefinition = "DECIMAL(5,2) DEFAULT 0.00")
     private BigDecimal descuento; // Representa un porcentaje, ej: 10.00 = 10% de descuento
 
@@ -50,9 +47,6 @@ public class Producto {
     @JoinColumn(name = "categoria_id", nullable = false)
     @JsonBackReference // evita la recursividad infinita al serializar la entidad
     private Categoria categoria;*/
-
-    @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
-    private int ventas_totales;
 
     @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private int stock_minimo;
