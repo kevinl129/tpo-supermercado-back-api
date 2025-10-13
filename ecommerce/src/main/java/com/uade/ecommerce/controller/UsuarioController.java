@@ -1,20 +1,17 @@
 package com.uade.ecommerce.controller;
 
-import com.uade.ecommerce.controller.dto.LoginRequest;
-import com.uade.ecommerce.controller.dto.UsuarioLoginResponse;
-import com.uade.ecommerce.controller.dto.LoginJwtResponse;
+import com.uade.ecommerce.controller.PasswordChangeRequest;
+import com.uade.ecommerce.controller.LoginRequest;
+import com.uade.ecommerce.controller.UsuarioLoginResponse;
+import com.uade.ecommerce.controller.LoginJwtResponse;
 import com.uade.ecommerce.entity.Usuario;
 import com.uade.ecommerce.service.UsuarioService;
-import com.uade.ecommerce.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -22,10 +19,6 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
     // DTO para exponer solo datos seguros
     public static class UsuarioProfileDTO {
         public int id;
