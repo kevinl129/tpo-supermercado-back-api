@@ -1,4 +1,4 @@
-package com.uade.tpo.supermercado.service;
+package com.uade.ecommerce.service;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -7,10 +7,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import com.uade.tpo.supermercado.controller.ProductoRequest;
-import com.uade.tpo.supermercado.entity.*;
-import com.uade.tpo.supermercado.excepciones.ProductoDuplicateException;
-import com.uade.tpo.supermercado.excepciones.ProductoNotFoundException;
+import com.uade.ecommerce.controller.ProductoRequest;
+import com.uade.ecommerce.entity.*;
+import com.uade.ecommerce.exception.ProductoDuplicateException;
+import com.uade.ecommerce.exception.ProductoNotFoundException;
 
 public interface ProductoService {
     public Page<Producto> getProductos(Pageable pageable);

@@ -1,4 +1,4 @@
-package com.uade.tpo.supermercado.service;
+package com.uade.ecommerce.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -8,15 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
-import com.uade.tpo.supermercado.controller.ProductoRequest;
-import com.uade.tpo.supermercado.entity.Categoria;
-import com.uade.tpo.supermercado.entity.Imagen;
-import com.uade.tpo.supermercado.entity.Producto;
-import com.uade.tpo.supermercado.excepciones.ProductoDuplicateException;
-import com.uade.tpo.supermercado.excepciones.ProductoNotFoundException;
-import com.uade.tpo.supermercado.repository.ImagenRepository;
-import com.uade.tpo.supermercado.repository.ProductoRepository;
-import com.uade.tpo.supermercado.spec.ProductoSpecification;
+import com.uade.ecommerce.controller.ProductoRequest;
+import com.uade.ecommerce.entity.Categoria;
+import com.uade.ecommerce.entity.Imagen;
+import com.uade.ecommerce.entity.Producto;
+import com.uade.ecommerce.exception.ProductoDuplicateException;
+import com.uade.ecommerce.exception.ProductoNotFoundException;
+import com.uade.ecommerce.repository.ImagenRepository;
+import com.uade.ecommerce.repository.ProductoRepository;
+import com.uade.ecommerce.spec.ProductoSpecification;
 import org.springframework.data.jpa.domain.Specification;
 
 @Service

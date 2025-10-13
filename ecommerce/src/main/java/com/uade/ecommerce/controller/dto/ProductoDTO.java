@@ -3,8 +3,8 @@ package com.uade.tpo.supermercado.controller.dto;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import com.uade.tpo.supermercado.entity.Imagen;
-import com.uade.tpo.supermercado.entity.Producto;
+import com.uade.ecommerce.entity.Imagen;
+import com.uade.ecommerce.entity.Producto;
 import lombok.Data;
 
 @Data
