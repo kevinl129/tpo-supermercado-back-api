@@ -1,4 +1,4 @@
-package com.uade.tpo.supermercado.controller.dto;
+package com.uade.ecommerce.controller.dto;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

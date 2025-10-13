@@ -1,4 +1,4 @@
-package com.uade.ecommerce.service.controller.dto;
+package com.uade.ecommerce.controller.dto;
 
 public class UsuarioLoginResponse {
     private int id;
