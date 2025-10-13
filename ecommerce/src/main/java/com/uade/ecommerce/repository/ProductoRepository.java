@@ -13,7 +13,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import com.uade.ecommerce.entity.Categoria;
-import com.uade.tpo.supermercado.entity.Producto;
+import com.uade.ecommerce.entity.Producto;
 
 import jakarta.transaction.Transactional;
 

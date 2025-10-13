@@ -1,8 +1,8 @@
 package com.uade.ecommerce.service;
 
-import com.uade.tpo.supermercado.entity.Carrito;
-import com.uade.tpo.supermercado.entity.Usuario;
-import com.uade.tpo.supermercado.entity.dto.CarritoResponse;
+import com.uade.ecommerce.entity.Carrito;
+import com.uade.ecommerce.entity.Usuario;
+import com.uade.ecommerce.entity.dto.CarritoResponse;
 
 public interface CarritoService {
     Carrito crearCarrito(Usuario usuario);

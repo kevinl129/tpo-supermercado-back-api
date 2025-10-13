@@ -35,9 +35,9 @@ public class Orden {
     @Column(length = 20)
     private String estado;
 
-    @ManyToOne
+    /*@ManyToOne
     @JoinColumn(name = "direccion_id")
-    private Direccion direccionEnvio; // Si es null, es retiro en tienda
+    private Direccion direccionEnvio;*/ // Si es null, es retiro en tienda
 
     @Column(nullable = false, precision = 10, scale = 2, columnDefinition = "DECIMAL(10,2) DEFAULT 0")
     private BigDecimal descuentoTotal;
@@ -49,7 +49,7 @@ public class Orden {
 
     }
 
-    public Orden(Usuario usuario, BigDecimal total, LocalDateTime fecha, String estado, Direccion direccionEnvio,
+    /*public Orden(Usuario usuario, BigDecimal total, LocalDateTime fecha, String estado, Direccion direccionEnvio,
             BigDecimal descuentoTotal) {
         this.usuario = usuario;
         this.total = total;
@@ -57,6 +57,6 @@ public class Orden {
         this.estado = estado;
         this.direccionEnvio = direccionEnvio;
         this.descuentoTotal = descuentoTotal;
-    }
+    }*/
 
 }

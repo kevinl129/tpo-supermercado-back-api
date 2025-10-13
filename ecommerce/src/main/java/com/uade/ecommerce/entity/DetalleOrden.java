@@ -33,21 +33,21 @@ public class DetalleOrden {
     private Orden orden;
 
     //Este detalle representa un producto comprado. Una orden puede tener varios detalles.
-    @ManyToOne
+    /*@ManyToOne
     @JoinColumn(name = "producto_id", nullable = false)
-    private Producto producto;
+    private Producto producto;*/
 
     public DetalleOrden() {
 
     }
 
-    public DetalleOrden(int cantidad, BigDecimal precioUnitario, BigDecimal subtotal, Orden orden, Producto producto) {
+    /*public DetalleOrden(int cantidad, BigDecimal precioUnitario, BigDecimal subtotal, Orden orden, Producto producto) {
         this.cantidad = cantidad;
         this.precioUnitario = precioUnitario;
         this.subtotal = subtotal;
         this.orden = orden;
         this.producto = producto;
-    }
+    }*/
 
 
 

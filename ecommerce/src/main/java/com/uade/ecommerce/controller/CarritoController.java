@@ -6,13 +6,13 @@ import org.springframework.web.bind.annotation.*;
 import com.uade.ecommerce.entity.Carrito;
 import com.uade.ecommerce.entity.Usuario;
 import com.uade.ecommerce.entity.dto.CarritoResponse;
-import com.uade.ecommerce.excepction.NoEncontradoException;
+//import com.uade.ecommerce.excepction.NoEncontradoException;
 import com.uade.ecommerce.service.CarritoService;
 import com.uade.ecommerce.service.UsuarioService;
 
 import java.net.URI;
 import java.security.Principal;
-4
+
 @RestController
 @RequestMapping("carritos")
 public class CarritoController {

@@ -1,9 +1,9 @@
 package com.uade.ecommerce.controller;
 
-import com.uade.ecommerce.controller.PasswordChangeRequest;
+/*import com.uade.ecommerce.controller.PasswordChangeRequest;
 import com.uade.ecommerce.controller.LoginRequest;
 import com.uade.ecommerce.controller.UsuarioLoginResponse;
-import com.uade.ecommerce.controller.LoginJwtResponse;
+import com.uade.ecommerce.controller.LoginJwtResponse;*/
 import com.uade.ecommerce.entity.Usuario;
 import com.uade.ecommerce.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,6 +111,7 @@ public class UsuarioController {
     }
 
     // cambiar la contrasena de un usuario no auteticador por email
+    /*
     @PutMapping("/cambiar-password")
     public ResponseEntity<String> cambiarPasswordPorEmail(@RequestParam String email,
             @RequestBody PasswordChangeRequest passwordChangeRequest) {
@@ -207,5 +208,5 @@ public class UsuarioController {
                 usuario.getApellido(),
                 usuario.getRol());
         return ResponseEntity.ok(new LoginJwtResponse(token, response));
-    }
+    }*/
 }

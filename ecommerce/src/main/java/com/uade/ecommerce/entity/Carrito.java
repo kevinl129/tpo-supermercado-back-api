@@ -50,3 +50,4 @@ public class Carrito {
         this.itemsCarrito = new ArrayList<>();// Inicializar la lista vacía
         this.estado = estado;
     }
+}
