@@ -1,15 +1,15 @@
 package com.uade.ecommerce.entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
+//import java.util.List;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+//import jakarta.persistence.OneToMany;
 import lombok.Data;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+//import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Data

@@ -166,5 +166,4 @@ public class ProductoServiceImpl implements ProductoService {
               //  .and(ProductoSpecification.precioLessThanOrEqual(precioMax));
        // return productoRepository.findAll(spec, pageable);
    // }
-
 }
