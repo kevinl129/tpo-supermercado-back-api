@@ -91,7 +91,7 @@ public class CategoriaController {
 
     @PostMapping
     public ResponseEntity<Object> createCategory(
-            @RequestBody com.uade.tpo.supermercado.entity.dto.CategoryRequest categoryRequest) {
+            @RequestBody com.uade.ecommerce.entity.dto.CategoryRequest categoryRequest) {
 
         // Validar nombre de la categoría
         if (categoryRequest.getNombre() == null || categoryRequest.getNombre().trim().isEmpty()) {
@@ -154,7 +154,7 @@ public class CategoriaController {
     // Si la categoría tiene hijos, se eliminarán automáticamente
     @PutMapping("/{categoriaID}")
     public ResponseEntity<Categoria> updateCategory(@PathVariable int categoriaID,
-            @RequestBody com.uade.tpo.supermercado.entity.dto.CategoryRequest categoryRequest) {
+            @RequestBody com.uade.ecommerce.entity.dto.CategoryRequest categoryRequest) {
 
         Categoria updatedCategory = categoriaService.updateCategory(categoriaID, categoryRequest);
 
