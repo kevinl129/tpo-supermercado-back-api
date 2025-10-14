@@ -26,7 +26,7 @@ public class ManejoErrores {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
-    // Manejo de errores genéricos
+    //error generico
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> manejarExcepcionGenerica(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

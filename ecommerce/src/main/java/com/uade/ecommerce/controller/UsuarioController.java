@@ -19,7 +19,7 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
-    // DTO para exponer solo datos seguros
+    //DTO datos del user
     public static class UsuarioProfileDTO {
         public int id;
         public String username;
