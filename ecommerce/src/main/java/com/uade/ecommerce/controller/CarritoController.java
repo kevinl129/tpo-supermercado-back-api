@@ -12,6 +12,8 @@ import com.uade.ecommerce.service.UsuarioService;
 
 import java.net.URI;
 import java.security.Principal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("carritos")
@@ -22,52 +24,59 @@ public class CarritoController {
     @Autowired
     private UsuarioService usuarioService;
 
+    // Se modificó el método para crear un carrito para un usuario no autenticado (invitado).
+    // Nota: Necesitas adaptar tu CarritoService para manejar un usuario nulo o un ID de sesión.
+    @GetMapping
+    public ResponseEntity<List<CarritoResponse>> getAllCarritos() {
+        // En una app real, esto podría devolver una lista paginada de carritos
+        // para un ADMIN, por ejemplo.
+        List<Carrito> carritos = carritoService.findAllCarritos();
+        List<CarritoResponse> response = carritos.stream()
+            .map(carritoService::convertirACarritoResponse)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
+    }
+    
     @PostMapping
-    public ResponseEntity<CarritoResponse> crearCarrito(Principal principal) {
-        Usuario usuario = getUsuarioIdDesdePrincipal(principal);
-        Carrito nuevoCarrito = carritoService.crearCarrito(usuario);
+    public ResponseEntity<CarritoResponse> crearCarrito() {
+        Carrito nuevoCarrito = carritoService.crearCarrito(null);
         return ResponseEntity
                 .created(URI.create("/carritos/" + nuevoCarrito.getId()))
                 .body(carritoService.convertirACarritoResponse(nuevoCarrito));
     }
 
-    @GetMapping
-    public ResponseEntity<CarritoResponse> obtenerCarrito(Principal principal) {
-        Usuario usuario = getUsuarioIdDesdePrincipal(principal);
-        Carrito carrito = carritoService.obtenerCarrito(usuario);
+    // Se modificó el método para obtener un carrito por su ID, sin requerir autenticación.
+    @GetMapping("/{carritoId}")
+    public ResponseEntity<CarritoResponse> obtenerCarrito(@PathVariable int carritoId) {
+        // Necesitas un nuevo método en CarritoService que acepte un ID de carrito
+        Carrito carrito = carritoService.obtenerCarritoPorId(carritoId);
         return ResponseEntity.ok(carritoService.convertirACarritoResponse(carrito));
     }
 
-    @PatchMapping("/{productoId}")
+    // Se modificó el método para agregar un producto a un carrito por su ID.
+    @PatchMapping("/{carritoId}/producto/{productoId}")
     public ResponseEntity<CarritoResponse> agregarProducto(
-            Principal principal,
+            @PathVariable int carritoId,
             @PathVariable int productoId,
             @RequestParam(defaultValue = "1") int cantidad) {
-        Usuario usuario = getUsuarioIdDesdePrincipal(principal);
-        Carrito carritoActualizado = carritoService.agregarProducto(usuario, productoId, cantidad);
+        Carrito carritoActualizado = carritoService.agregarProductoPorId(carritoId, productoId, cantidad);
         return ResponseEntity.ok(carritoService.convertirACarritoResponse(carritoActualizado));
     }
 
-    @DeleteMapping("/{productoId}")
+    // Se modificó el método para eliminar un producto de un carrito por su ID.
+    @DeleteMapping("/{carritoId}/producto/{productoId}")
     public ResponseEntity<CarritoResponse> eliminarProducto(
-            Principal principal,
+            @PathVariable int carritoId,
             @PathVariable int productoId,
             @RequestParam(defaultValue = "1") int cantidad) {
-        Usuario usuario = getUsuarioIdDesdePrincipal(principal);
-        Carrito carritoActualizado = carritoService.eliminarProducto(usuario, productoId, cantidad);
+        Carrito carritoActualizado = carritoService.eliminarProductoPorId(carritoId, productoId, cantidad);
         return ResponseEntity.ok(carritoService.convertirACarritoResponse(carritoActualizado));
     }
 
-    @DeleteMapping
-    public ResponseEntity<CarritoResponse> vaciarCarrito(Principal principal) {
-        Usuario usuario = getUsuarioIdDesdePrincipal(principal);
-        Carrito carritoVaciado = carritoService.vaciarCarrito(usuario);
+    // Se modificó el método para vaciar un carrito por su ID.
+    @DeleteMapping("/{carritoId}")
+    public ResponseEntity<CarritoResponse> vaciarCarrito(@PathVariable int carritoId) {
+        Carrito carritoVaciado = carritoService.vaciarCarritoPorId(carritoId);
         return ResponseEntity.ok(carritoService.convertirACarritoResponse(carritoVaciado));
-    }
-
-    private Usuario getUsuarioIdDesdePrincipal(Principal principal) {
-        String username = principal.getName();
-        return usuarioService.getUsuarioByUsername(username)
-                .orElseThrow(() -> new NoEncontradoException("Usuario no encontrado"));
     }
 }

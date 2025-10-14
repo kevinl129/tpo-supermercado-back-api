@@ -16,22 +16,28 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.EnumType;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder; // Asegúrate de tener esta importación
 
 @Data
 @Entity
+@Builder // Esta anotación te permite inicializar objetos de forma segura
+@NoArgsConstructor
+@AllArgsConstructor // Este constructor es incompatible con la inicialización del campo
 public class Carrito {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(nullable = false)
-    private LocalDateTime fecha_creacion = LocalDateTime.now();
+    private LocalDateTime fechaCreacion = LocalDateTime.now();
 
     @Column(nullable = true)
     private LocalDateTime fechaActivacion;
 
     @OneToOne
-    @JoinColumn(name = "usuario_id", referencedColumnName = "id", nullable = false, unique = true)
+    @JoinColumn(name = "usuario_id", referencedColumnName = "id", nullable = true, unique = true)
     private Usuario usuario;
 
     @Enumerated(EnumType.STRING)
@@ -39,15 +45,6 @@ public class Carrito {
     private EstadoCarrito estado;
 
     @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<ItemCarrito> itemsCarrito = new ArrayList<>(); // Lista de los items del carrito
-
-    public Carrito() {
-    }
-
-    public Carrito(Usuario usuario, EstadoCarrito estado, LocalDateTime fecha_creacion) {
-        this.fecha_creacion = fecha_creacion;
-        this.usuario = usuario;
-        this.itemsCarrito = new ArrayList<>();// Inicializar la lista vacía
-        this.estado = estado;
-    }
+    @Builder.Default // Inicializa la lista por defecto al usar @Builder
+    private List<ItemCarrito> itemsCarrito = new ArrayList<>();
 }
