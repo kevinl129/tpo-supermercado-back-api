@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import com.uade.ecommerce.controller.ProductoRequest;
@@ -162,5 +164,12 @@ public class ProductoServiceImpl implements ProductoService {
                 .and(ProductoSpecification.precioLessThanOrEqual(precioMax));
         return productoRepository.findAll(spec, pageable);
     }*/
+    
+     @Override
+    public Page<Producto> filtrarProductos(String nombre, String marca, Integer categoriaId,
+                                           BigDecimal precioMin, BigDecimal precioMax, Pageable pageable) {
+        return productoRepository.filtrarProductos(nombre, marca, categoriaId, precioMin, precioMax, pageable);
+    }
+
 
 }

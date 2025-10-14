@@ -19,8 +19,10 @@ public class DireccionService {
         return direccionRepository.findByUsuario(usuario);
     }
 
-    public Direccion getDireccionById(int id) {
-        return direccionRepository.findById(id).get();
+    public Optional<Direccion> getDireccionById(int id) {
+        // Devuelve un Optional<Direccion> para manejar el caso de que el ID no exista.
+        // Esto previene un error de tipo NoSuchElementException.
+        return direccionRepository.findById(id);
     }
 
     public Direccion saveDireccion(Direccion direccion) {
