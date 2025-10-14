@@ -2,8 +2,12 @@ package com.uade.ecommerce.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.uade.ecommerce.controller.dto.CatalogoResponse;
 import com.uade.ecommerce.controller.dto.ProductoDTO;
 import com.uade.ecommerce.entity.Categoria;
+import com.uade.ecommerce.entity.Imagen;
 import com.uade.ecommerce.entity.Producto;
 import com.uade.ecommerce.exception.*;
 import com.uade.ecommerce.service.ProductoService;
 import com.uade.ecommerce.service.CategoriaService;
+import com.uade.ecommerce.service.ImagenService;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,6 +32,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("producto")
@@ -34,6 +43,47 @@ public class ProductoController {
     private ProductoService productoService;
     @Autowired
     private CategoriaService categorias;
+
+
+    @Autowired
+    private ImagenService imagenService;
+
+
+    // Subir 1 imagen
+    @PostMapping("/{id}/imagen")
+    public ResponseEntity<?> subirImagen(@PathVariable int id,
+                                        @RequestParam("archivo") MultipartFile archivo) throws Exception {
+        if (archivo == null || archivo.isEmpty()) throw new ParametroFueraDeRangoException("Debe seleccionar un archivo");
+        Imagen imagen = imagenService.guardarImagen(id, archivo);
+        return ResponseEntity.ok(Map.of("id", imagen.getId(), "path", imagen.getImagen()));
+    }
+
+
+    // Listar imágenes de un producto
+    @GetMapping("/{id}/imagenes")
+    public ResponseEntity<?> listarImagenes(@PathVariable int id) {
+        return ResponseEntity.ok(imagenService.obtenerImagenesPorProducto(id)
+                .stream()
+                .map(img -> Map.of("id", img.getId(), "path", img.getImagen()))
+                .collect(Collectors.toList()));
+    }
+
+    // Borrar imagen por id
+    @DeleteMapping("/imagen/{imagenId}")
+    public ResponseEntity<?> borrarImagenPorId(@PathVariable int imagenId) throws IOException {
+        imagenService.eliminarImagenPorId(imagenId);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Borrar todas las imágenes de un producto
+    @DeleteMapping("/{id}/imagenes")
+    public ResponseEntity<?> borrarImagenesPorProducto(@PathVariable int id) {
+        imagenService.eliminarImagenesPorProducto(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
+
 
     @GetMapping
     public ResponseEntity<Page<ProductoDTO>> getProductos(
@@ -181,10 +231,10 @@ public class ProductoController {
     public ResponseEntity<Object> createProducto(@RequestBody ProductoRequest producto)
             throws ProductoDuplicateException, ParametroFueraDeRangoException {
         // Se puede crear un producto
-        if (producto.getCategoria_id() < 1) {
+        /*if (producto.getCategoria_id() < 1) {
             // Si el id de la categoria es menor a 1, se lanza una excepción
             throw new ParametroFueraDeRangoException("El id del producto debe ser mayor a 0");
-        }
+        }*/
         if (producto.getNombre() == null || producto.getNombre().isEmpty()) {
             // Si el nombre es nulo o vacío, se lanza una excepción
             throw new ParametroFueraDeRangoException("El nombre del producto no puede ser nulo o vacío");
@@ -193,10 +243,10 @@ public class ProductoController {
             // Si el precio es nulo o menor a 0, se lanza una excepción
             throw new ParametroFueraDeRangoException("El precio no puede ser nulo o menor a 0");
         }
-        if (producto.getCategoria_id() < 1) {
+        /*if (producto.getCategoria_id() < 1) {
             // Si el id de la categoria es menor a 1, se lanza una excepción
             throw new ParametroFueraDeRangoException("El id de la categoría debe ser mayor a 0");
-        }
+        }*/
         if (producto.getDescripcion() == null || producto.getDescripcion().isEmpty()) {
             // Si la descripción es nula o vacía, se lanza una excepción
             throw new ParametroFueraDeRangoException("La descripción no puede ser nula o vacía");

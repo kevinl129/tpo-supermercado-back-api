@@ -12,14 +12,13 @@ public class ProductoDTO {
     private int id;
     private String nombre;
     private String descripcion;
-    private List<String> imagenes;// puede ser null
+    private List<String> imagenes = new ArrayList<>(); // 🔹 evita null
     private BigDecimal precio;
-    private String marca;// puede ser null
+    private String marca;
     private String categoria;
     private int stock;
     private BigDecimal descuento;
 
-    // Constructors
     public ProductoDTO(Producto producto) {
         this.id = producto.getId();
         this.nombre = producto.getNombre();
@@ -34,10 +33,10 @@ public class ProductoDTO {
     }
 
     private void cargarImagenes(Producto producto) {
-        List<Imagen> imagenes = producto.getImagenes();
-        for (Imagen imagen : imagenes) {
-            this.imagenes.add(imagen.getImagen());
+        if (producto.getImagenes() != null) {
+            for (Imagen imagen : producto.getImagenes()) {
+                this.imagenes.add(imagen.getImagen());
+            }
         }
     }
-
 }
