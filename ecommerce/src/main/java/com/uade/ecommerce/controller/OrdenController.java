@@ -30,16 +30,16 @@ public class OrdenController {
 
     // DTO para finalizar compra
     public static class FinalizarCompraRequest {
+        public Integer usuarioId; // Se añadió un ID de usuario al request
         public Integer direccionId; // null para retiro en tienda
     }
 
     // POST para finalizar compra
     @PostMapping
     public ResponseEntity<OrdenResponseDTO> finalizarCompra(
-            Principal principal,
             @RequestBody FinalizarCompraRequest request) {
-        String username = principal.getName();
-        Usuario usuario = usuarioService.getUsuarioByUsername(username)
+        // Se obtiene el usuario directamente desde el body del request
+        Usuario usuario = usuarioService.getUsuarioById(request.usuarioId)
                 .orElseThrow(() -> new NoEncontradoException("Usuario no encontrado"));
         Orden orden = ordenService.finalizarCompra(usuario, request.direccionId);
         OrdenResponseDTO dto = ordenService.convertirAOrdenResponse(orden);
@@ -64,4 +64,3 @@ public class OrdenController {
         return ResponseEntity.ok(dtos);
     }
 }
-
