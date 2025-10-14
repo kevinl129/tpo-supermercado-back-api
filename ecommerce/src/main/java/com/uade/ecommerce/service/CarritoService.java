@@ -4,7 +4,7 @@ import com.uade.ecommerce.entity.Carrito;
 import com.uade.ecommerce.entity.Usuario;
 import com.uade.ecommerce.entity.dto.CarritoResponse;
 import java.util.List;
-import java.util.Optional;
+//import java.util.Optional;
 
 public interface CarritoService {
     Carrito crearCarrito(Usuario usuario);

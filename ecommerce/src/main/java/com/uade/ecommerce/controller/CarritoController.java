@@ -4,14 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.uade.ecommerce.entity.Carrito;
-import com.uade.ecommerce.entity.Usuario;
+//import com.uade.ecommerce.entity.Usuario;
 import com.uade.ecommerce.entity.dto.CarritoResponse;
-import com.uade.ecommerce.exception.NoEncontradoException;
+//import com.uade.ecommerce.exception.NoEncontradoException;
 import com.uade.ecommerce.service.CarritoService;
 import com.uade.ecommerce.service.UsuarioService;
 
 import java.net.URI;
-import java.security.Principal;
+//import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
