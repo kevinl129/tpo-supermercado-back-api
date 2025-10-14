@@ -25,6 +25,7 @@ import lombok.Builder; // Asegúrate de tener esta importación
 @Builder // Esta anotación te permite inicializar objetos de forma segura
 @NoArgsConstructor
 @AllArgsConstructor // Este constructor es incompatible con la inicialización del campo
+
 public class Carrito {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

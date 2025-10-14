@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
+//import org.springframework.data.domain.Example;
+//import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import com.uade.ecommerce.controller.ProductoRequest;
@@ -19,7 +19,7 @@ import com.uade.ecommerce.exception.ProductoNotFoundException;
 import com.uade.ecommerce.repository.ImagenRepository;
 import com.uade.ecommerce.repository.ProductoRepository;
 //import com.uade.ecommerce.specification.ProductoSpecification;
-import org.springframework.data.jpa.domain.Specification;
+//import org.springframework.data.jpa.domain.Specification;
 
 @Service
 public class ProductoServiceImpl implements ProductoService {
@@ -96,16 +96,16 @@ public class ProductoServiceImpl implements ProductoService {
 
         Producto productoConImagenes = productoRepository.save(nuevoProducto);
         // agregamos las imagenes
-        //List<Imagen> imagenes = new ArrayList<>();
-        //for (String imagenUrl : productoRequest.getImagenes()) {
-          //  Imagen imagen = new Imagen();
-            //imagen.setImagen(imagenUrl);
-            //imagen.setProducto(nuevoProducto);
-            //imagenes.add(imagen);
-            //imagenRepository.save(imagen); // Guarda cada imagen en la base de datos
-       // }
+        List<Imagen> imagenes = new ArrayList<>();
+        for (String imagenUrl : productoRequest.getImagenes()) {
+            Imagen imagen = new Imagen();
+            imagen.setImagen(imagenUrl);
+            imagen.setProducto(nuevoProducto);
+            imagenes.add(imagen);
+            imagenRepository.save(imagen); // Guarda cada imagen en la base de datos
+        }
         // Asocia las imágenes al producto
-       // productoConImagenes.setImagenes(imagenes);
+        productoConImagenes.setImagenes(imagenes);
         return productoConImagenes;
     }
 
@@ -131,16 +131,16 @@ public class ProductoServiceImpl implements ProductoService {
        producto.getImagenes().clear(); // Limpia la lista de imágenes del producto
        Producto productoConImagenes = productoRepository.save(producto); // Guarda el producto, JPA elimina las imágenes huérfanas
         // Guarda las nuevas imágenes en la base de datos
-       // List<Imagen> imagenes = new ArrayList<>();
-        //for (String imagenUrl : productoRequest.getImagenes()) {
-          //  Imagen imagen = new Imagen();
-            //imagen.setImagen(imagenUrl);
-            //imagen.setProducto(producto);
-            //imagenes.add(imagen);
-            //imagenRepository.save(imagen); // Guarda cada imagen en la base de datos
-        //}
+        List<Imagen> imagenes = new ArrayList<>();
+        for (String imagenUrl : productoRequest.getImagenes()) {
+            Imagen imagen = new Imagen();
+            imagen.setImagen(imagenUrl);
+            imagen.setProducto(producto);
+            imagenes.add(imagen);
+            imagenRepository.save(imagen); // Guarda cada imagen en la base de datos
+        }
         // Asocia las imágenes al producto
-       // productoConImagenes.setImagenes(imagenes);
+        productoConImagenes.setImagenes(imagenes);
         return productoConImagenes;
     }
 
@@ -153,17 +153,6 @@ public class ProductoServiceImpl implements ProductoService {
     public Optional<Producto> getProductoById(int id) {
         return productoRepository.findById(id);
     }
-
-    /*@Override
-    public Page<Producto> filtrarProductos(String nombre, String marca, Integer categoriaId, BigDecimal precioMin,
-            BigDecimal precioMax, Pageable pageable) {
-        Specification<Producto> spec = Specification.where(ProductoSpecification.nombreContains(nombre))
-                .and(ProductoSpecification.marcaEquals(marca))
-                .and(ProductoSpecification.categoriaIdEquals(categoriaId))
-                .and(ProductoSpecification.precioGreaterThanOrEqual(precioMin))
-                .and(ProductoSpecification.precioLessThanOrEqual(precioMax));
-        return productoRepository.findAll(spec, pageable);
-    }*/
     
      @Override
     public Page<Producto> filtrarProductos(String nombre, String marca, Integer categoriaId,
