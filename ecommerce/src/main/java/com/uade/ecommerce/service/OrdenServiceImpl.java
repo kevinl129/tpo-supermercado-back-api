@@ -61,7 +61,8 @@ public class OrdenServiceImpl implements OrdenService {
                 .map(item -> item.getPrecio_unitario().multiply(new BigDecimal(item.getCantidad())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        Direccion direccionEnvio = direccionService.getDireccionById(direccionId);
+        Direccion direccionEnvio = direccionService.getDireccionById(direccionId)
+                .orElseThrow(() -> new NoEncontradoException("Dirección de envío no encontrada"));
 
 
         // 6. Crear la orden
