@@ -25,5 +25,5 @@ public interface ProductoService {
     public void deleteProducto(int id) throws ProductoNotFoundException;
     public Optional<Producto> getProductoById(int id);
     // Nuevo método para filtrado flexible
-    Page<Producto> filtrarProductos(String nombre, String marca, Integer categoriaId, BigDecimal precioMin, BigDecimal precioMax, Pageable pageable);
+    //Page<Producto> filtrarProductos(String nombre, String marca, Integer categoriaId, BigDecimal precioMin, BigDecimal precioMax, Pageable pageable);
 }

@@ -33,8 +33,8 @@ public class OrdenServiceImpl implements OrdenService {
     @Autowired
     private DetalleOrdenRepository detalleOrdenRepository;
 
-    //@Autowired
-    //private DireccionService direccionService;
+    @Autowired
+    private DireccionService direccionService;
 
     @Transactional
     public Orden finalizarCompra(Usuario usuario, Integer direccionId) {
@@ -60,6 +60,8 @@ public class OrdenServiceImpl implements OrdenService {
         BigDecimal totalCompra = carrito.getItemsCarrito().stream()
                 .map(item -> item.getPrecio_unitario().multiply(new BigDecimal(item.getCantidad())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        Direccion direccionEnvio = direccionService.getDireccionById(direccionId);
 
 
         // 6. Crear la orden

@@ -19,8 +19,8 @@ public class DireccionService {
         return direccionRepository.findByUsuario(usuario);
     }
 
-    public Optional<Direccion> getDireccionById(int id) {
-        return direccionRepository.findById(id);
+    public Direccion getDireccionById(int id) {
+        return direccionRepository.findById(id).get();
     }
 
     public Direccion saveDireccion(Direccion direccion) {

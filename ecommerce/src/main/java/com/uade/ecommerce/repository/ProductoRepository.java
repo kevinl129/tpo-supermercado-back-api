@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
-//import com.uade.ecommerce.entity.Categoria;
+import com.uade.ecommerce.entity.Categoria;
 import com.uade.ecommerce.entity.Producto;
 
 //import jakarta.transaction.Transactional;
@@ -38,10 +38,10 @@ public interface ProductoRepository extends JpaRepository<Producto, Integer>, Jp
         @Query(value = "select p from Producto p where p.precio >= ?2 and p.precio <= ?1")
         Optional<Producto> findByPrecio(BigDecimal precioMax, BigDecimal precioMin);
 
-        /*@Query(value = "select p from Producto p where p.categoria = ?1")
+        @Query(value = "select p from Producto p where p.categoria = ?1")
         Optional<Producto> findByCategoria(Categoria categoria);
 
         boolean existsByNombreAndDescripcionAndMarcaAndCategoria(String nombre, String descripcion,
-                        String marca, Categoria categoria);*/
+                        String marca, Categoria categoria);
 }
 

@@ -43,10 +43,10 @@ public class Producto {
     @Column(nullable = false, precision = 5, scale = 2, columnDefinition = "DECIMAL(5,2) DEFAULT 0.00")
     private BigDecimal descuento; // Representa un porcentaje, ej: 10.00 = 10% de descuento
 
-    /*@ManyToOne
+    @ManyToOne
     @JoinColumn(name = "categoria_id", nullable = false)
     @JsonBackReference // evita la recursividad infinita al serializar la entidad
-    private Categoria categoria;*/
+    private Categoria categoria;
 
     @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private int stock_minimo;
@@ -54,9 +54,9 @@ public class Producto {
     @Column(length = 20, nullable = false, columnDefinition = "VARCHAR(20) DEFAULT 'activo'")
     private String estado;
 
-    /*@OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference // evita la recursividad infinita al serializar la entidad
-    private List<Imagen> imagenes = new ArrayList<>();*/
+    private List<Imagen> imagenes = new ArrayList<>();
 
     public Producto() {
 
