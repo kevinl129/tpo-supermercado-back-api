@@ -33,20 +33,21 @@ public class ItemCarrito {
     private Carrito carrito;
 
     // En la relacion con producto es lo mismo que carrito
-    /*@ManyToOne
+    @ManyToOne
     @JoinColumn(name = "producto_id", nullable = false)
-    private Producto producto;*/
+    private Producto producto;
 
     public ItemCarrito() {
 
     }
 
-    public ItemCarrito(int cantidad, BigDecimal precio_unirario, Carrito carrito/*, Producto producto*/) {
+    public ItemCarrito(int cantidad, BigDecimal precio_unirario, Carrito carrito, Producto producto) {
         this.cantidad = cantidad;
         this.precio_unitario = precio_unirario;
         this.carrito = carrito;
-        //this.producto = producto;
+        this.producto = producto;
     }
+    
 
     public int getId() {
         return id;
@@ -80,12 +81,12 @@ public class ItemCarrito {
         this.carrito = carrito;
     }
 
-    /*public Producto getProducto() {
+    public Producto getProducto() {
         return producto;
     }
 
     public void setProducto(Producto producto) {
         this.producto = producto;
-    }*/
+    }
 
 }

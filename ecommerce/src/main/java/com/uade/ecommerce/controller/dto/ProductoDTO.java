@@ -17,7 +17,6 @@ public class ProductoDTO {
     private String marca;// puede ser null
     private String categoria;
     private int stock;
-    private String unidadMedida;// puede ser null
     private BigDecimal descuento;
 
     // Constructors
@@ -31,7 +30,6 @@ public class ProductoDTO {
         this.marca = producto.getMarca();
         this.categoria = producto.getCategoria().getNombre();
         this.stock = producto.getStock();
-        this.unidadMedida = producto.getUnidad_medida();
         this.descuento = producto.getDescuento();
     }
 

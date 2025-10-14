@@ -22,8 +22,8 @@ import com.uade.ecommerce.service.UsuarioService;
 @RestController
 @RequestMapping("ordenes")
 public class OrdenController {
-    /*@Autowired
-    private OrdenService ordenService;*/
+   // @Autowired
+    //private OrdenService ordenService;
 
     @Autowired
     private UsuarioService usuarioService;

@@ -40,9 +40,9 @@ public class Usuario  {
     @Column(nullable = false,columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime fecha_registro;
 
-    /*@OneToMany(mappedBy = "usuario", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "usuario", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<Direccion> direcciones;*/
+    private List<Direccion> direcciones;
 
     public Usuario(){
         this.fecha_registro = LocalDateTime.now(); // auto asigna la fecha y hora actual

@@ -13,7 +13,7 @@ import com.uade.ecommerce.exception.CategoriaNoEncontrada;
 import com.uade.ecommerce.exception.DatoDuplicadoException;
 import com.uade.ecommerce.exception.NoEncontradoException;
 import com.uade.ecommerce.exception.ParametroFueraDeRangoException;
-import com.uade.ecommerce.exception.CategoriaRepository;
+import com.uade.ecommerce.repository.CategoriaRepository;
 
 @Service
 public class CategoriaServiceImpl implements CategoriaService {
@@ -32,8 +32,6 @@ public class CategoriaServiceImpl implements CategoriaService {
         Categoria nuevaCategoria = new Categoria();
         nuevaCategoria.setNombre(categoryRequest.getNombre());
 
-        // Paso 4: Asignar padre si corresponde
-        parentCategory.ifPresent(nuevaCategoria::setParentCategoria);
 
         // Paso 5: Guardar la nueva categoría
         Categoria savedCategory = categoriaRepository.save(nuevaCategoria);
@@ -42,7 +40,6 @@ public class CategoriaServiceImpl implements CategoriaService {
         // subcategorías del padre
         if (parentCategory.isPresent()) {
             Categoria parent = parentCategory.get();
-            parent.getSubcategorias().add(savedCategory);
             categoriaRepository.save(parent); // Persistir el cambio en el padre
         }
 
@@ -66,22 +63,10 @@ public class CategoriaServiceImpl implements CategoriaService {
         // 3. Verificar duplicado (otra categoría con el mismo nombre y mismo padre)
         validateCategoryDuplicate(categoryRequest.getNombre(), categoryRequest.getParentId());
 
-        // 4. Validar que el padre exista (si se proporciona)
-        Categoria parentCategoria = null;
-        if (categoryRequest.getParentId() != null) {
-            parentCategoria = validateParentCategoryExists(categoryRequest.getParentId()).orElse(null);
-        }
-
         // 5. Actualizar los datos de la categoría
         Categoria categoria = categoriaExistente.get();
         categoria.setNombre(categoryRequest.getNombre());
 
-        // Actualizar la relación padre-hijo
-        if (parentCategoria != null) {
-            categoria.setParentCategoria(parentCategoria);
-        } else {
-            categoria.setParentCategoria(null); // Si es raíz, no tiene padre
-        }
 
         // Guardar los cambios
         return categoriaRepository.save(categoria);
@@ -119,11 +104,6 @@ public class CategoriaServiceImpl implements CategoriaService {
 
         if (categoria.isPresent()) {
             Categoria cat = categoria.get();
-            // Si es subcategoría, quitála del padre antes
-            if (cat.getParentCategoria() != null) {
-                cat.getParentCategoria().getSubcategorias().remove(cat);
-            }
-
             categoriaRepository.delete(cat);
         }
 

@@ -17,7 +17,6 @@ import com.uade.ecommerce.entity.Categoria;
 import com.uade.ecommerce.exception.NoEncontradoException;
 import com.uade.ecommerce.exception.ParametroFueraDeRangoException;
 import com.uade.ecommerce.entity.dto.categoriaResponse;
-import java.util.List;
 import java.util.Optional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -169,15 +168,9 @@ public class CategoriaController {
             return null;
         }
 
-        List<categoriaResponse> subcategoriasResponse = categoria.getSubcategorias().stream()
-                .map(this::convertToCategoriaResponse)
-                .toList();
-
+    
         return new categoriaResponse(
                 categoria.getId(),
-                categoria.getNombre(),
-                categoria.getParentCategoria() != null ? categoria.getParentCategoria().getId() : null,
-                categoria.getParentCategoria() != null ? categoria.getParentCategoria().getNombre() : null,
-                subcategoriasResponse);
+                categoria.getNombre());
     }
-}
+} 

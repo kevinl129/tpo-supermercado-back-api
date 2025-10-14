@@ -17,6 +17,7 @@ import com.uade.ecommerce.exception.EstadoInvalidoException;
 import com.uade.ecommerce.exception.NoEncontradoException;
 import com.uade.ecommerce.exception.StockInsuficienteException;
 
+
 @Service
 
 public class OrdenServiceImpl implements OrdenService {
@@ -32,8 +33,8 @@ public class OrdenServiceImpl implements OrdenService {
     @Autowired
     private DetalleOrdenRepository detalleOrdenRepository;
 
-    @Autowired
-    private DireccionService direccionService;
+    //@Autowired
+    //private DireccionService direccionService;
 
     @Transactional
     public Orden finalizarCompra(Usuario usuario, Integer direccionId) {
@@ -74,7 +75,7 @@ public class OrdenServiceImpl implements OrdenService {
 
             // Crear el detalle de la orden
             DetalleOrden detalle = new DetalleOrden(item.getCantidad(), item.getPrecio_unitario(), subtotal, orden,
-                    item.getProducto());
+            item.getProducto());
             detalleOrdenRepository.save(detalle);
             orden.getItemsOrden().add(detalle);
 
