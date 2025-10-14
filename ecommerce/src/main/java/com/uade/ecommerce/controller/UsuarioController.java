@@ -38,54 +38,75 @@ public class UsuarioController {
         }
     }
 
+      // Clase auxiliar para devolver mensajes junto con los datos
+    public static class ApiResponse<T> {
+        public String mensaje;
+        public T data;
+
+        public ApiResponse(String mensaje, T data) {
+            this.mensaje = mensaje;
+            this.data = data;
+        }
+    }
+
     // 1. Obtener todos los usuarios (sin password)
     @GetMapping
-    public ResponseEntity<List<UsuarioProfileDTO>> getAllUsuarios() {
+    public ResponseEntity<ApiResponse<List<UsuarioProfileDTO>>> getAllUsuarios() {
         List<Usuario> usuarios = usuarioService.getAllUsuarios();
         List<UsuarioProfileDTO> safeUsuarios = usuarios.stream()
                 .map(UsuarioProfileDTO::new)
                 .toList();
-        return ResponseEntity.ok(safeUsuarios);
+        String msg = safeUsuarios.isEmpty()
+                ? "⚠️ No se encontraron usuarios registrados."
+                : "✅ Lista de usuarios obtenida correctamente (" + safeUsuarios.size() + " usuarios).";
+
+        return ResponseEntity.ok(new ApiResponse<>(msg, safeUsuarios));
     }
 
     // 2. Obtener un usuario por ID (sin password)
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioProfileDTO> getUsuarioById(@PathVariable int id) {
+    public ResponseEntity<ApiResponse<UsuarioProfileDTO>> getUsuarioById(@PathVariable int id) {
         Optional<Usuario> usuario = usuarioService.getUsuarioById(id);
-        return usuario.map(u -> ResponseEntity.ok(new UsuarioProfileDTO(u)))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+         if (usuario.isPresent()) {
+            return ResponseEntity.ok(new ApiResponse<>("✅ Usuario encontrado correctamente.", new UsuarioProfileDTO(usuario.get())));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>("⚠️ No se encontró el usuario con ID: " + id, null));
+        }
     }
 
     // 3. Crear un nuevo usuario (devuelve sin password)
     @PostMapping
-    public ResponseEntity<UsuarioProfileDTO> createUsuario(@RequestBody Usuario usuario) {
+    public ResponseEntity<ApiResponse<UsuarioProfileDTO>> createUsuario(@RequestBody Usuario usuario) {
         try {
             Usuario nuevoUsuario = usuarioService.createOrUpdateUsuario(usuario);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new UsuarioProfileDTO(nuevoUsuario));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ApiResponse<>("✅ Usuario creado correctamente.", new UsuarioProfileDTO(nuevoUsuario)));        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>("❌ Error al crear usuario: " + e.getMessage(), null));
         }
     }
 
     // 4. Actualizar un usuario existente (reemplazo total, PUT) (sin password)
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioProfileDTO> updateUsuario(@PathVariable int id, @RequestBody Usuario usuario) {
+    public ResponseEntity<ApiResponse<UsuarioProfileDTO>> updateUsuario(@PathVariable int id, @RequestBody Usuario usuario) {
         try {
             usuario.setId(id); // Asegurarse de que el ID sea el correcto
             Usuario usuarioActualizado = usuarioService.createOrUpdateUsuario(usuario);
-            return ResponseEntity.ok(new UsuarioProfileDTO(usuarioActualizado));
+            return ResponseEntity.ok(new ApiResponse<>("✅ Usuario actualizado correctamente.", new UsuarioProfileDTO(usuarioActualizado)));       
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>("❌ Error al actualizar usuario: " + e.getMessage(), null));        }
     }
 
     // 5. Actualización parcial de usuario (PATCH) (sin password)
     @PatchMapping("/{id}")
-    public ResponseEntity<UsuarioProfileDTO> patchUsuario(@PathVariable int id, @RequestBody Usuario usuarioPatch) {
+    public ResponseEntity<ApiResponse<UsuarioProfileDTO>> patchUsuario(@PathVariable int id, @RequestBody Usuario usuarioPatch) {
         try {
             Optional<Usuario> usuarioOpt = usuarioService.getUsuarioById(id);
             if (usuarioOpt.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ApiResponse<>("⚠️ No se encontró el usuario con ID: " + id, null));
             }
             Usuario usuarioExistente = usuarioOpt.get();
             
@@ -104,42 +125,59 @@ public class UsuarioController {
                 usuarioExistente.setRol(usuarioPatch.getRol());
                 
             Usuario usuarioActualizado = usuarioService.createOrUpdateUsuario(usuarioExistente);
-            return ResponseEntity.ok(new UsuarioProfileDTO(usuarioActualizado));
+            return ResponseEntity.ok(new ApiResponse<>("✅ Usuario actualizado parcialmente.", new UsuarioProfileDTO(usuarioActualizado)));
+
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>("❌ Error al actualizar usuario parcialmente: " + e.getMessage(), null));
         }
     }
     
     // 6. Eliminar un usuario por ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUsuario(@PathVariable int id) {
+    public ResponseEntity<ApiResponse<String>> deleteUsuario(@PathVariable int id) {
         // Asumiendo que el servicio maneja la excepción NotFound si el ID no existe
-        usuarioService.deleteUsuarioById(id);
-        return ResponseEntity.ok("Usuario eliminado correctamente.");
+         try {
+            usuarioService.deleteUsuarioById(id);
+            return ResponseEntity.ok(new ApiResponse<>("🗑️ Usuario eliminado correctamente.", "ID eliminado: " + id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>("⚠️ No se pudo eliminar: usuario con ID " + id + " no encontrado.", null));
+        }
     }
     
     // 7. verificar si un usuario existe por nombre de usuario
     @GetMapping("/exists/username/{username}")
-    public ResponseEntity<Boolean> existsByUsername(@PathVariable String username) {
+    public ResponseEntity<ApiResponse<Boolean>> existsByUsername(@PathVariable String username) {
         boolean exists = usuarioService.existsByUsername(username);
-        return ResponseEntity.ok(exists);
+        String msg = exists
+                ? "✅ El nombre de usuario '" + username + "' ya existe."
+                : "ℹ️ El nombre de usuario '" + username + "' está disponible.";
+        return ResponseEntity.ok(new ApiResponse<>(msg, exists));
     }
 
     // 8. verificar si un usuario existe por email
     @GetMapping("/exists/email/{email}")
-    public ResponseEntity<Boolean> existsByEmail(@PathVariable String email) {
+    public ResponseEntity<ApiResponse<Boolean>> existsByEmail(@PathVariable String email) {
         boolean exists = usuarioService.existsByEmail(email);
-        return ResponseEntity.ok(exists);
+         String msg = exists
+                ? "✅ El email '" + email + "' ya está registrado."
+                : "ℹ️ El email '" + email + "' está disponible.";
+        return ResponseEntity.ok(new ApiResponse<>(msg, exists));
     }
 
     // 9. Obtener usuarios por rol (sin password)
     @GetMapping("/rol/{rol}")
-    public ResponseEntity<List<UsuarioProfileDTO>> getUsuariosByRol(@PathVariable String rol) {
+    public ResponseEntity<ApiResponse<List<UsuarioProfileDTO>>> getUsuariosByRol(@PathVariable String rol) {
         List<Usuario> usuarios = usuarioService.getUsuariosByRol(rol);
         List<UsuarioProfileDTO> safeUsuarios = usuarios.stream()
                 .map(UsuarioProfileDTO::new)
                 .toList();
-        return ResponseEntity.ok(safeUsuarios);
+         String msg = safeUsuarios.isEmpty()
+                ? "⚠️ No hay usuarios con el rol '" + rol + "'."
+                : "✅ Usuarios con rol '" + rol + "' obtenidos correctamente.";
+
+        return ResponseEntity.ok(new ApiResponse<>(msg, safeUsuarios));
     }
     
     // Todos los demás métodos y DTOs de seguridad/login han sido eliminados por solicitud.
