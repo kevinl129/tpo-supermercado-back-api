@@ -89,9 +89,7 @@ public class ProductoServiceImpl implements ProductoService {
                 .ifPresent(nuevoProducto::setCategoria);
         nuevoProducto.setStock(productoRequest.getStock());
         nuevoProducto.setStock_minimo(productoRequest.getStockMinimo());
-        nuevoProducto.setUnidad_medida(productoRequest.getUnidadMedida());
         nuevoProducto.setEstado(productoRequest.getEstado());
-        nuevoProducto.setVentas_totales(productoRequest.getVentasTotales());
         nuevoProducto.setDescuento(productoRequest.getDescuento());
 
         Producto productoConImagenes = productoRepository.save(nuevoProducto);
@@ -125,9 +123,7 @@ public class ProductoServiceImpl implements ProductoService {
                 .ifPresent(producto::setCategoria);
         producto.setStock(productoRequest.getStock());
         producto.setStock_minimo(productoRequest.getStockMinimo());
-        producto.setUnidad_medida(productoRequest.getUnidadMedida());
         producto.setEstado(productoRequest.getEstado());
-        producto.setVentas_totales(productoRequest.getVentasTotales());
         producto.setDescuento(productoRequest.getDescuento());
         // eliminar las imagenes viejas
        // producto.getImagenes().clear(); // Limpia la lista de imágenes del producto
