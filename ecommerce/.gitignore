@@ -30,4 +30,5 @@ build/
 !**/src/test/**/build/
 
 ### VS Code ###
+ecommerce/src/main/resources/application.properties
 .vscode/
