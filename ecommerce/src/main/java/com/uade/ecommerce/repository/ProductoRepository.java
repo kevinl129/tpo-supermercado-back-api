@@ -5,10 +5,12 @@ import java.math.BigDecimal;
 //import java.util.List;
 import java.util.Optional;
 
-//import org.hibernate.query.Page;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 //import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
@@ -43,5 +45,22 @@ public interface ProductoRepository extends JpaRepository<Producto, Integer>, Jp
 
         boolean existsByNombreAndDescripcionAndMarcaAndCategoria(String nombre, String descripcion,
                         String marca, Categoria categoria);
+
+        @Query("""
+        SELECT p FROM Producto p
+        WHERE (:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')))
+          AND (:marca IS NULL OR LOWER(p.marca) LIKE LOWER(CONCAT('%', :marca, '%')))
+          AND (:categoriaId IS NULL OR p.categoria.id = :categoriaId)
+          AND (:precioMin IS NULL OR p.precio >= :precioMin)
+          AND (:precioMax IS NULL OR p.precio <= :precioMax)
+    """)
+    Page<Producto> filtrarProductos(
+        @Param("nombre") String nombre,
+        @Param("marca") String marca,
+        @Param("categoriaId") Integer categoriaId,
+        @Param("precioMin") BigDecimal precioMin,
+        @Param("precioMax") BigDecimal precioMax,
+        Pageable pageable
+    );
 }
 
