@@ -3,6 +3,7 @@ package com.uade.ecommerce.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -18,19 +19,21 @@ import lombok.AllArgsConstructor;
 
 @Entity
 @Data
-@NoArgsConstructor // Necesario para JPA
-@AllArgsConstructor // Constructor con todos los campos (útil para pruebas)
+@NoArgsConstructor
+@AllArgsConstructor
 public class Categoria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(length = 50, nullable = false, unique = true) // Añadido 'unique' para nombres de categoría
+    @Column(length = 50, nullable = false, unique = true)
     private String nombre;
 
-    // Relación con Producto: Una Categoría tiene muchos Productos
+    // Se añadió el campo `parentId` para mapear la relación jerárquica
+    @Column(name = "parent_id")
+    private Integer parentId;
+
     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Producto> productos = new ArrayList<>();
-
 }

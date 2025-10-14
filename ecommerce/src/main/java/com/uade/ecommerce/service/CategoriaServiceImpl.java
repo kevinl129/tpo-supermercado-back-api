@@ -32,7 +32,6 @@ public class CategoriaServiceImpl implements CategoriaService {
         Categoria nuevaCategoria = new Categoria();
         nuevaCategoria.setNombre(categoryRequest.getNombre());
 
-
         // Paso 5: Guardar la nueva categoría
         Categoria savedCategory = categoriaRepository.save(nuevaCategoria);
 
@@ -111,7 +110,8 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     @Override
     public boolean existsByNombreAndPadre(String nombre, Integer parentId) {
-        return categoriaRepository.existsByNombreAndParentCategoriaId(nombre, parentId);
+        // CORREGIDO: Se cambió 'existsByNombreAndParentCategoriaId' a 'existsByNombreAndParentId'
+        return categoriaRepository.existsByNombreAndParentId(nombre, parentId);
     }
 
     @Override
@@ -121,8 +121,8 @@ public class CategoriaServiceImpl implements CategoriaService {
             throw new ParametroFueraDeRangoException("El ID de la categoría padre debe ser mayor o igual a 1.");
         }
 
-        // Obtener las subcategorías por ID del padre
-        List<Categoria> subcategorias = categoriaRepository.findByParentCategoriaId(parentId);
+        // CORREGIDO: Se cambió 'findByParentCategoriaId' a 'findByParentId'
+        List<Categoria> subcategorias = categoriaRepository.findByParentId(parentId);
 
         // Si no se encuentran subcategorías, lanzamos una excepción
         if (subcategorias.isEmpty()) {
@@ -154,7 +154,8 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     // Método para validar si ya existe una categoría con el mismo nombre y padre
     private void validateCategoryDuplicate(String nombre, Integer parentId) {
-        if (categoriaRepository.existsByNombreAndParentCategoriaId(nombre, parentId)) {
+        // CORREGIDO: Se cambió 'existsByNombreAndParentCategoriaId' a 'existsByNombreAndParentId'
+        if (categoriaRepository.existsByNombreAndParentId(nombre, parentId)) {
             throw new DatoDuplicadoException("Ya existe una categoría con el nombre '" + nombre + "' para ese padre.");
         }
 
