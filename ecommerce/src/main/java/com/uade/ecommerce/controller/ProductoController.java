@@ -263,10 +263,6 @@ public class ProductoController {
                 || producto.getDescuento().compareTo(new BigDecimal("100")) > 0) {
             throw new ParametroFueraDeRangoException("El descuento debe estar entre 0 y 100");
         }
-        if (producto.getVentasTotales() < 0) {
-            // Si las ventas totales son menores a 0, se lanza una excepción
-            throw new ParametroFueraDeRangoException("Las ventas totales no pueden ser menores a 0");
-        }
         if (producto.getImagenes().size() > 10) {
             // Si la lista de imagenes es mayor a 10, se lanza una excepción
             throw new ParametroFueraDeRangoException("No se pueden agregar más de 10 imagenes");
@@ -313,10 +309,6 @@ public class ProductoController {
         if (productoRequest.getDescuento() == null || productoRequest.getDescuento().compareTo(BigDecimal.ZERO) < 0
                 || productoRequest.getDescuento().compareTo(new BigDecimal("100")) > 0) {
             throw new ParametroFueraDeRangoException("El descuento debe estar entre 0 y 100");
-        }
-        if (productoRequest.getVentasTotales() < 0) {
-            // Si las ventas totales son menores a 0, se lanza una excepción
-            throw new ParametroFueraDeRangoException("Las ventas totales no pueden ser menores a 0");
         }
         if (productoRequest.getImagenes().size() > 10) {
             // Si la lista de imagenes es mayor a 10, se lanza una excepción
