@@ -15,9 +15,9 @@ import lombok.RequiredArgsConstructor; // Importamos Lombok para la inyección p
 @RequiredArgsConstructor // Genera el constructor para la inyección de UsuarioService
 public class UsuarioController {
 
-    private final UsuarioService usuarioService; // Inyección por constructor (moderno)
-
-    // DTO para exponer solo datos seguros (sin password)
+    @Autowired
+    private UsuarioService usuarioService;
+    //DTO datos del user
     public static class UsuarioProfileDTO {
         public int id;
         public String username;

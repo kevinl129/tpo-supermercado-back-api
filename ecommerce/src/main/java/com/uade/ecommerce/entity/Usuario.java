@@ -27,7 +27,6 @@ public class Usuario  {
     @Column(length = 100,nullable = false)
     private String password;
 
-
     @Column(length = 50,nullable = false)
     private String nombre;
 
@@ -48,9 +47,9 @@ public class Usuario  {
         this.fecha_registro = LocalDateTime.now(); // auto asigna la fecha y hora actual
     }
 
-    public Usuario( String username, String email, String password, String nombre, String apellido, String rol,
+    public Usuario(String email, String password, String nombre, String apellido, String rol,
             LocalDateTime fecha_registro) {
-        this.username = username;
+        this.username = email;
         this.email = email;
         this.password = password;
         this.nombre = nombre;

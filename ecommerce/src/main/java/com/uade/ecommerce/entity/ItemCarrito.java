@@ -26,13 +26,12 @@ public class ItemCarrito {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal precio_unitario;
 
-    // relacion con carrito,cada
-    // item del carrito pertenece a un solo carrito
+    //fk con carrito, un item solo puede tener un carrito
     @ManyToOne
     @JoinColumn(name = "carrito_id", nullable = false)
     private Carrito carrito;
 
-    // En la relacion con producto es lo mismo que carrito
+    //fk con el producto
     @ManyToOne
     @JoinColumn(name = "producto_id", nullable = false)
     private Producto producto;

@@ -53,7 +53,7 @@ public class UsuarioService {
     // crear o actualizar un usuario
     public Usuario createOrUpdateUsuario(Usuario usuario) {
         if (usuario.getId() == 0) {
-            // Crear nuevo usuario
+            //crear nuevo user
             if (usuarioRepository.existsByUsername(usuario.getUsername())) {
                 throw new IllegalArgumentException("El nombre de usuario ya está en uso.");
             }
