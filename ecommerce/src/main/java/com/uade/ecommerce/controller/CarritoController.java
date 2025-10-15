@@ -4,8 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.uade.ecommerce.entity.Carrito;
+import com.uade.ecommerce.entity.Usuario;
 //import com.uade.ecommerce.entity.Usuario;
 import com.uade.ecommerce.entity.dto.CarritoResponse;
+import com.uade.ecommerce.exception.NoEncontradoException;
 //import com.uade.ecommerce.exception.NoEncontradoException;
 import com.uade.ecommerce.service.CarritoService;
 import com.uade.ecommerce.service.UsuarioService;
@@ -37,9 +39,11 @@ public class CarritoController {
         return ResponseEntity.ok(response);
     }
     
-    @PostMapping
-    public ResponseEntity<CarritoResponse> crearCarrito() {
-        Carrito nuevoCarrito = carritoService.crearCarrito(null);
+    @PostMapping("/usuario/{userId}")
+    public ResponseEntity<CarritoResponse> crearCarrito(@PathVariable int userId) {
+        Usuario usuario = usuarioService.getUsuarioById(userId)
+        .orElseThrow(() -> new NoEncontradoException("Usuario no encontrado con ID: " + userId));
+        Carrito nuevoCarrito = carritoService.crearCarrito(usuario);
         return ResponseEntity
                 .created(URI.create("/carritos/" + nuevoCarrito.getId()))
                 .body(carritoService.convertirACarritoResponse(nuevoCarrito));
