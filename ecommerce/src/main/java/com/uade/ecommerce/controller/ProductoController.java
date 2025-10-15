@@ -6,7 +6,6 @@ import org.springframework.data.domain.PageImpl;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
-//import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -53,40 +52,51 @@ public class ProductoController {
     @PostMapping("/{id}/imagen")
     public ResponseEntity<?> subirImagen(@PathVariable int id,
                                         @RequestParam("archivo") MultipartFile archivo) throws Exception {
-        if (archivo == null || archivo.isEmpty()) throw new ParametroFueraDeRangoException("Debe seleccionar un archivo");
-        Imagen imagen = imagenService.guardarImagen(id, archivo);
-        return ResponseEntity.ok(Map.of("id", imagen.getId(), "path", imagen.getImagen()));
+        if (archivo == null || archivo.isEmpty())
+            throw new ParametroFueraDeRangoException("Debe seleccionar un archivo");        
+            Imagen imagen = imagenService.guardarImagen(id, archivo);
+
+        return ResponseEntity.ok(Map.of(
+            "mensaje", "Imagen subida correctamente al producto con ID " + id,
+            "idImagen", imagen.getId(),
+            "path", imagen.getImagen()
+        ));    
     }
 
 
     // Listar imágenes de un producto
     @GetMapping("/{id}/imagenes")
     public ResponseEntity<?> listarImagenes(@PathVariable int id) {
-        return ResponseEntity.ok(imagenService.obtenerImagenesPorProducto(id)
-                .stream()
+        var imagenes = imagenService.obtenerImagenesPorProducto(id)
+           .stream()
                 .map(img -> Map.of("id", img.getId(), "path", img.getImagen()))
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+        if (imagenes.isEmpty()) {
+            return ResponseEntity.ok(Map.of("mensaje", "El producto con ID " + id + " no tiene imágenes asociadas"));
+        }
+        return ResponseEntity.ok(Map.of(
+            "mensaje", "Listado de imágenes obtenido correctamente",
+            "imagenes", imagenes
+        ));
     }
 
     // Borrar imagen por id
     @DeleteMapping("/imagen/{imagenId}")
     public ResponseEntity<?> borrarImagenPorId(@PathVariable int imagenId) throws IOException {
         imagenService.eliminarImagenPorId(imagenId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(Map.of("mensaje", "Imagen con ID " + imagenId + " eliminada correctamente"));
     }
 
     // Borrar todas las imágenes de un producto
     @DeleteMapping("/{id}/imagenes")
     public ResponseEntity<?> borrarImagenesPorProducto(@PathVariable int id) {
         imagenService.eliminarImagenesPorProducto(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(Map.of("mensaje", "Todas las imágenes del producto con ID " + id + " fueron eliminadas"));
     }
 
 
-
-
     @GetMapping
-    public ResponseEntity<Page<ProductoDTO>> getProductos(
+    public ResponseEntity<?> getProductos(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
             @RequestParam(required = false) String nombre,
@@ -105,18 +115,25 @@ public class ProductoController {
             throw new ProductoNotFoundException("No hay productos que coincidan con los filtros");
         }
         Page<ProductoDTO> productosDTO = productos.map(ProductoDTO::new);
-        return ResponseEntity.ok(productosDTO);
+        return ResponseEntity.ok(Map.of(
+            "mensaje", "Productos obtenidos correctamente",
+            "total", productos.getTotalElements(),
+            "productos", productosDTO.getContent()
+        ));
     }
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<ProductoDTO> getProductoById(@PathVariable int id) throws ProductoNotFoundException {
+    public ResponseEntity<?> getProductoById(@PathVariable int id) throws ProductoNotFoundException {
         // Se puede obtener un producto por id
         if (id < 1)
             // Si el id es menor a 1, se lanza una excepción
             throw new ParametroFueraDeRangoException("El id del producto debe ser mayor a 0");
         Optional<Producto> result = productoService.getProductoById(id);
         if (result.isPresent())
-            return ResponseEntity.ok(new ProductoDTO(result.get()));
+             return ResponseEntity.ok(Map.of(
+                "mensaje", "Producto encontrado con éxito",
+                "producto", new ProductoDTO(result.get())
+            ));
         // Si no se encuentra el producto, se lanza una excepción
         throw new ProductoNotFoundException("No se encontró el producto con id: " + id);
     }
@@ -228,7 +245,7 @@ public class ProductoController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createProducto(@RequestBody ProductoRequest producto)
+    public ResponseEntity<?> createProducto(@RequestBody ProductoRequest producto)
             throws ProductoDuplicateException, ParametroFueraDeRangoException {
         // Se puede crear un producto
         /*if (producto.getCategoria_id() < 1) {
@@ -271,11 +288,14 @@ public class ProductoController {
         categorias.getCategoriaById(producto.getCategoria_id())
                 .orElseThrow(() -> new ParametroFueraDeRangoException("La categoría no existe"));
         Producto result = productoService.createProducto(producto);
-        return ResponseEntity.created(URI.create("/productos/" + result.getId())).body(new ProductoDTO(result));
-    }
+        return ResponseEntity.created(URI.create("/productos/" + result.getId())).body(Map.of(
+            "mensaje", "Producto creado correctamente",
+            "id", result.getId(),
+            "producto", new ProductoDTO(result)
+        ));    }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Object> updateProducto(@PathVariable int id, @RequestBody ProductoRequest productoRequest)
+    public ResponseEntity<?> updateProducto(@PathVariable int id, @RequestBody ProductoRequest productoRequest)
             throws ProductoNotFoundException {
         // Se puede actualizar un producto
         if (productoRequest.getCategoria_id() < 1) {
@@ -318,11 +338,14 @@ public class ProductoController {
         categorias.getCategoriaById(productoRequest.getCategoria_id())
                 .orElseThrow(() -> new ParametroFueraDeRangoException("La categoría no existe"));
         Producto result = productoService.updateProducto(id, productoRequest);
-        return ResponseEntity.ok(new ProductoDTO(result));
+        return ResponseEntity.ok(Map.of(
+            "mensaje", "Producto actualizado correctamente",
+            "productoActualizado", new ProductoDTO(result)
+        ));    
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteProducto(@PathVariable int id) throws ProductoNotFoundException {
+    public ResponseEntity<?> deleteProducto(@PathVariable int id) throws ProductoNotFoundException {
         // Se puede eliminar un producto
         if (id < 1) {
             // Si el id es menor a 1, se lanza una excepción
@@ -332,6 +355,5 @@ public class ProductoController {
         productoService.getProductoById(id)
                 .orElseThrow(() -> new ProductoNotFoundException("No se encontró el producto con id: " + id));
         productoService.deleteProducto(id);
-        return ResponseEntity.noContent().build();
-    }
+        return ResponseEntity.ok(Map.of("mensaje", "Producto con ID " + id + " eliminado correctamente"));    }
 }
