@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor; // Importamos Lombok para la inyección p
 @RestController
 @RequestMapping("/usuarios")
 @RequiredArgsConstructor // Genera el constructor para la inyección de UsuarioService
+@CrossOrigin(origins = "http://localhost:5174")
 public class UsuarioController {
 
     @Autowired
