@@ -3,6 +3,8 @@ package com.uade.ecommerce.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
+
 //import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -21,6 +23,7 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@CrossOrigin(origins = "http://localhost:5174")
 public class Categoria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
