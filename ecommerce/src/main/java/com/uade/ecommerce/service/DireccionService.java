@@ -15,13 +15,16 @@ public class DireccionService {
     @Autowired
     private DireccionRepository direccionRepository;
 
+    // NUEVO: Método para obtener todas las direcciones
+    public List<Direccion> getAllDirecciones() {
+        return direccionRepository.findAll();
+    }
+
     public List<Direccion> getDireccionesByUsuario(Usuario usuario) {
         return direccionRepository.findByUsuario(usuario);
     }
 
     public Optional<Direccion> getDireccionById(int id) {
-        // Devuelve un Optional<Direccion> para manejar el caso de que el ID no exista.
-        // Esto previene un error de tipo NoSuchElementException.
         return direccionRepository.findById(id);
     }
 

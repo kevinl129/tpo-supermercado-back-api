@@ -1,18 +1,14 @@
 package com.uade.ecommerce.controller;
 
 import com.uade.ecommerce.entity.Direccion;
-import com.uade.ecommerce.entity.Usuario;
 import com.uade.ecommerce.service.DireccionService;
-import com.uade.ecommerce.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.uade.ecommerce.exception.NoEncontradoException;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
-
+@CrossOrigin(origins = "http://localhost:5174")
 @RestController
 @RequestMapping("/direcciones")
 public class DireccionController {
@@ -20,62 +16,52 @@ public class DireccionController {
     @Autowired
     private DireccionService direccionService;
 
-    @Autowired
-    private UsuarioService usuarioService;
-
-    // Listar direcciones del usuario autenticado
+    // Listar todas las direcciones
     @GetMapping
-    public ResponseEntity<List<Direccion>> getDireccionesUsuario(Principal principal) {
-        Usuario usuario = getUsuarioDesdePrincipal(principal);
-        List<Direccion> direcciones = direccionService.getDireccionesByUsuario(usuario);
+    public ResponseEntity<List<Direccion>> getDirecciones() {
+        List<Direccion> direcciones = direccionService.getAllDirecciones();
         return ResponseEntity.ok(direcciones);
     }
 
-    // Crear nueva dirección para el usuario autenticado
+    // Obtener dirección por ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Direccion> getDireccionById(@PathVariable int id) {
+        Optional<Direccion> direccion = direccionService.getDireccionById(id);
+        return direccion.map(ResponseEntity::ok)
+                       .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Crear nueva dirección
     @PostMapping
-    public ResponseEntity<Direccion> crearDireccion(Principal principal, @RequestBody Direccion direccion) {
-        Usuario usuario = getUsuarioDesdePrincipal(principal);
-        direccion.setUsuario(usuario);
+    public ResponseEntity<Direccion> crearDireccion(@RequestBody Direccion direccion) {
         Direccion nueva = direccionService.saveDireccion(direccion);
         return ResponseEntity.ok(nueva);
     }
 
-    // Actualizar dirección (solo si pertenece al usuario)
+    // Actualizar dirección
     @PutMapping("/{id}")
-    public ResponseEntity<Direccion> actualizarDireccion(Principal principal, @PathVariable int id, @RequestBody Direccion direccion) {
-        Usuario usuario = getUsuarioDesdePrincipal(principal);
-        // Manejar el Optional devuelto por el servicio
+    public ResponseEntity<Direccion> actualizarDireccion(@PathVariable int id, @RequestBody Direccion direccion) {
         Optional<Direccion> dirOpt = direccionService.getDireccionById(id);
 
-        if (dirOpt.isEmpty() || dirOpt.get().getUsuario().getId() != usuario.getId()) {
-            return ResponseEntity.status(403).build(); // 403 Forbidden
+        if (dirOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
 
         direccion.setId(id);
-        direccion.setUsuario(usuario);
         Direccion actualizada = direccionService.saveDireccion(direccion);
         return ResponseEntity.ok(actualizada);
     }
 
-    // Eliminar dirección (solo si pertenece al usuario)
+    // Eliminar dirección
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarDireccion(Principal principal, @PathVariable int id) {
-        Usuario usuario = getUsuarioDesdePrincipal(principal);
-        // Manejar el Optional devuelto por el servicio
+    public ResponseEntity<Void> eliminarDireccion(@PathVariable int id) {
         Optional<Direccion> dirOpt = direccionService.getDireccionById(id);
 
-        if (dirOpt.isEmpty() || dirOpt.get().getUsuario().getId() != usuario.getId()) {
-            return ResponseEntity.status(403).build(); // 403 Forbidden
+        if (dirOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
 
         direccionService.deleteDireccion(id);
         return ResponseEntity.noContent().build();
-    }
-    
-    // Método auxiliar para obtener el objeto Usuario del Principal
-    private Usuario getUsuarioDesdePrincipal(Principal principal) {
-        String username = principal.getName();
-        return usuarioService.getUsuarioByUsername(username)
-                .orElseThrow(() -> new NoEncontradoException("Usuario no encontrado"));
     }
 }

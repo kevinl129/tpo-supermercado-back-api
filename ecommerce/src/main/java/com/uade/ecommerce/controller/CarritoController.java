@@ -16,6 +16,7 @@ import java.net.URI;
 //import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
+@CrossOrigin(origins = "http://localhost:5174")
 
 @RestController
 @RequestMapping("carritos")

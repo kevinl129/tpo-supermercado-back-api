@@ -3,7 +3,11 @@ package com.uade.ecommerce.controller;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+
 import lombok.Data;
+@CrossOrigin(origins = "http://localhost:5174")
 
 @Data
 public class ProductoRequest {
