@@ -52,17 +52,15 @@ public class CarritoController {
         return ResponseEntity.ok(carritoService.convertirACarritoResponse(carritoActualizado));
     }
 
-    @DeleteMapping("/usuario/{usuarioId}/eliminar/producto/{productoId}")
+    @DeleteMapping("/usuario/{usuarioId}/producto/{productoId}")
     public ResponseEntity<CarritoResponse> eliminarProductoPorUsuario(
             @PathVariable int usuarioId,
             @PathVariable int productoId,
             @RequestParam(defaultValue = "1") int cantidad) {
 
-        // 1. Obtener el usuario por ID
         Usuario usuario = usuarioService.getUsuarioById(usuarioId)
                 .orElseThrow(() -> new NoEncontradoException("Usuario no encontrado con ID: " + usuarioId));
 
-        // 2. Eliminar producto usando el objeto Usuario
         Carrito carritoActualizado = carritoService.eliminarProducto(usuario, productoId, cantidad);
         return ResponseEntity.ok(carritoService.convertirACarritoResponse(carritoActualizado));
     }
