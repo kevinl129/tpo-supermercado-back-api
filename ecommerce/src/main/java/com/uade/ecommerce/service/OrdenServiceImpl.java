@@ -41,7 +41,7 @@ public class OrdenServiceImpl implements OrdenService {
     private DireccionService direccionService;
 
     @Transactional
-    public Orden crearOrden(Integer usuarioId, Integer direccionId, List<ItemCompraRequest> items) { // ¡Nueva firma!
+    public Orden crearOrden(Integer usuarioId, Integer direccionId, List<ItemCompraRequest> items, Integer descuento) { // ¡Nueva firma!
 
         // 1. Obtener Usuario y Dirección (la lógica de obtener usuario se mueve al service)
         Usuario usuario = usuarioService.getUsuarioById(usuarioId)

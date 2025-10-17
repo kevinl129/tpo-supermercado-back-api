@@ -35,6 +35,9 @@ public class Orden {
     @Column(length = 20)
     private String estado;
 
+    @Column(nullable = false, precision = 5, scale = 2, columnDefinition = "DECIMAL(5,2) DEFAULT 0.00")
+    private BigDecimal descuento;
+
     @ManyToOne
     @JoinColumn(name = "direccion_id")
     private Direccion direccionEnvio; // Si es null, es retiro en tienda
