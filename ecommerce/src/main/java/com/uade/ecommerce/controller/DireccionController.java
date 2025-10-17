@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+
 @CrossOrigin(origins = "http://localhost:5174")
 @RestController
 @RequestMapping("/direcciones")
@@ -29,6 +30,7 @@ public class DireccionController {
         Optional<Direccion> direccion = direccionService.getDireccionById(id);
         return direccion.map(ResponseEntity::ok)
                        .orElse(ResponseEntity.notFound().build());
+        
     }
 
     // Crear nueva dirección

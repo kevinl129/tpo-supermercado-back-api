@@ -1,5 +1,7 @@
 package com.uade.ecommerce.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,12 +11,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-//import lombok.RequiredArgsConstructor; // Usado para constructor con campos 'final'
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Data
-@NoArgsConstructor // Constructor vacío para JPA
+@NoArgsConstructor
 public class Direccion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,10 +39,13 @@ public class Direccion {
     private String codigoPostal;
 
     @Column(length = 20)
-    private String tipoVivienda; // "casa" o "departamento"
+    private String tipoVivienda;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "usuario_id", nullable = false)
-    @JsonBackReference
+    // Comentá o eliminá el @JsonBackReference temporalmente para testing
+    // @JsonBackReference
+    @JsonIgnoreProperties({"direcciones", "password", "email"}) // Evita el bucle infinito
     private Usuario usuario;
 }
+
