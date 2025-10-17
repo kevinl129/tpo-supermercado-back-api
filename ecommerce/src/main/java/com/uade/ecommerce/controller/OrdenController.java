@@ -11,6 +11,7 @@ import com.uade.ecommerce.entity.Usuario;
 import com.uade.ecommerce.entity.dto.OrdenResponseDTO;
 import com.uade.ecommerce.exception.NoEncontradoException;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -21,6 +22,7 @@ import com.uade.ecommerce.service.UsuarioService;
 
 @RestController
 @RequestMapping("ordenes")
+@CrossOrigin(origins = "http://localhost:5174")
 public class OrdenController {
     @Autowired
     private OrdenService ordenService;

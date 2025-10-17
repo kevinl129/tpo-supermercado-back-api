@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("carritos")
+@CrossOrigin(origins = "http://localhost:5174")
 public class CarritoController {
 
     @Autowired
