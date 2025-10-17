@@ -23,7 +23,9 @@ import lombok.Data;
 public class Producto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    // 🚨 MODIFICACIÓN CLAVE: Cambiado de 'int' a 'Integer' para permitir que el valor sea NULL en el DTO/Entidad
+    // cuando se recibe un POST/PUT sin ID en el cuerpo. Esto soluciona el error 400.
+    private Integer id;
 
     @Column(length = 100, nullable = false)
     private String nombre;
@@ -35,17 +37,17 @@ public class Producto {
     private BigDecimal precio;
 
     @Column(nullable = false)
-    private int stock;
+    private int stock; // 'int' está bien aquí, pero considera 'Integer' si stock pudiera ser nulo temporalmente.
 
     @Column(length = 50)
     private String marca;
 
     @Column(nullable = false, precision = 5, scale = 2, columnDefinition = "DECIMAL(5,2) DEFAULT 0.00")
-    private BigDecimal descuento; // Representa un porcentaje, ej: 10.00 = 10% de descuento
+    private BigDecimal descuento;
 
     @ManyToOne
     @JoinColumn(name = "categoria_id", nullable = false)
-    @JsonBackReference // evita la recursividad infinita al serializar la entidad
+    @JsonBackReference
     private Categoria categoria;
 
     @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
@@ -55,11 +57,10 @@ public class Producto {
     private String estado;
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // evita la recursividad infinita al serializar la entidad
+    @JsonManagedReference
     private List<Imagen> imagenes = new ArrayList<>();
 
     public Producto() {
 
     }
-
 }

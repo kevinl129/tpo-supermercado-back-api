@@ -9,18 +9,22 @@ import lombok.Data;
 
 @Data
 public class ProductoDTO {
-    private int id;
+    
+    // CAMBIO CLAVE: Usa Integer en lugar de int para permitir el valor 'null'.
+    private Integer id; 
+    
     private String nombre;
     private String descripcion;
-    private List<String> imagenes = new ArrayList<>(); // 🔹 evita null
+    private List<String> imagenes = new ArrayList<>(); 
     private BigDecimal precio;
     private String marca;
     private String categoria;
-    private int stock;
+    private Integer stock;
     private BigDecimal descuento;
 
     public ProductoDTO(Producto producto) {
-        this.id = producto.getId();
+        // En el constructor, puedes seguir usando getID() si es int, y se auto-envuelve.
+        this.id = producto.getId(); 
         this.nombre = producto.getNombre();
         this.descripcion = producto.getDescripcion();
         this.imagenes = new ArrayList<>();
