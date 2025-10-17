@@ -35,15 +35,12 @@ public class Orden {
     @Column(length = 20)
     private String estado;
 
-    @Column(nullable = false, precision = 5, scale = 2, columnDefinition = "DECIMAL(5,2) DEFAULT 0.00")
+    @Column(nullable = true, precision = 5, scale = 2, columnDefinition = "DECIMAL(5,2) DEFAULT 0.00")
     private BigDecimal descuento;
 
     @ManyToOne
     @JoinColumn(name = "direccion_id")
     private Direccion direccionEnvio; // Si es null, es retiro en tienda
-
-    @Column(nullable = false, precision = 10, scale = 2, columnDefinition = "DECIMAL(10,2) DEFAULT 0")
-    private BigDecimal descuentoTotal;
 
     @OneToMany(mappedBy = "orden", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetalleOrden> itemsOrden = new ArrayList<>();
@@ -59,7 +56,7 @@ public class Orden {
         this.fecha = fecha;
         this.estado = estado;
         this.direccionEnvio = direccionEnvio;
-        this.descuentoTotal = descuentoTotal;
+        this.descuento = descuentoTotal;
     }
 
 }

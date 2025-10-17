@@ -21,14 +21,13 @@ import com.uade.ecommerce.exception.EstadoInvalidoException;
 import com.uade.ecommerce.exception.NoEncontradoException;
 import com.uade.ecommerce.exception.StockInsuficienteException;
 
-
 @Service
 
 public class OrdenServiceImpl implements OrdenService {
     @Autowired
     private OrdenRepository ordenRepository;
-    //@Autowired
-    //private CarritoRepository carritoRepository;
+    // @Autowired
+    // private CarritoRepository carritoRepository;
     @Autowired
     private UsuarioService usuarioService;
     @Autowired
@@ -41,31 +40,34 @@ public class OrdenServiceImpl implements OrdenService {
     private DireccionService direccionService;
 
     @Transactional
-    public Orden crearOrden(Integer usuarioId, Integer direccionId, List<ItemCompraRequest> items, Integer descuento) { // ¡Nueva firma!
+    public Orden crearOrden(Integer usuarioId, Integer direccionId, List<ItemCompraRequest> items, Integer descuento) { // ¡Nueva
+                                                                                                                        // firma!
 
-        // 1. Obtener Usuario y Dirección (la lógica de obtener usuario se mueve al service)
+        // 1. Obtener Usuario y Dirección (la lógica de obtener usuario se mueve al
+        // service)
         Usuario usuario = usuarioService.getUsuarioById(usuarioId)
                 .orElseThrow(() -> new NoEncontradoException("Usuario no encontrado"));
 
         Direccion direccionEnvio = null;
         if (direccionId != null) {
-             direccionEnvio = direccionService.getDireccionById(direccionId)
+            direccionEnvio = direccionService.getDireccionById(direccionId)
                     .orElseThrow(() -> new NoEncontradoException("Dirección de envío no encontrada"));
         }
-        
+
         // Si no hay items, no se puede crear la orden
         if (items == null || items.isEmpty()) {
-             throw new EstadoInvalidoException("La orden debe contener al menos un producto.");
+            throw new EstadoInvalidoException("La orden debe contener al menos un producto.");
         }
 
-
-        // 2. Verificar Stock, Precios y calcular el Total (Iteramos sobre el Request del Front)
+        // 2. Verificar Stock, Precios y calcular el Total (Iteramos sobre el Request
+        // del Front)
         BigDecimal totalCompra = BigDecimal.ZERO;
         List<DetalleOrden> detalles = new ArrayList<>();
 
         for (ItemCompraRequest itemRequest : items) {
             Producto producto = productoRepository.findById(itemRequest.getProductoId())
-                    .orElseThrow(() -> new NoEncontradoException("Producto con ID " + itemRequest.getProductoId() + " no encontrado."));
+                    .orElseThrow(() -> new NoEncontradoException(
+                            "Producto con ID " + itemRequest.getProductoId() + " no encontrado."));
 
             // Validaciones
             if (!"activo".equalsIgnoreCase(producto.getEstado())) {
@@ -78,31 +80,29 @@ public class OrdenServiceImpl implements OrdenService {
 
             // Cálculo del subtotal (Usamos el precioUnitario que envió el front)
             BigDecimal cantidad = new BigDecimal(itemRequest.getCantidad());
-            BigDecimal precioUnitario = itemRequest.getPrecioUnitario(); 
+            BigDecimal precioUnitario = producto.getPrecio();
             BigDecimal subtotal = precioUnitario.multiply(cantidad);
 
-            totalCompra = totalCompra.add(subtotal);
+            totalCompra = totalCompra.add(subtotal).subtract(BigDecimal.valueOf(descuento));
 
             // Preparamos el detalle de la orden
             DetalleOrden detalle = new DetalleOrden(
-                itemRequest.getCantidad(), 
-                precioUnitario, 
-                subtotal, 
-                null, // La orden se setea después
-                producto
-            );
+                    itemRequest.getCantidad(),
+                    precioUnitario,
+                    subtotal,
+                    null, // La orden se setea después
+                    producto);
             detalles.add(detalle);
         }
 
         // 3. Crear la orden
         Orden orden = new Orden(
-            usuario, 
-            totalCompra, 
-            LocalDateTime.now(), 
-            "FINALIZADA", 
-            direccionEnvio,
-            BigDecimal.ZERO // Ajustar si tienes lógica de descuento
-        );
+                usuario,
+                totalCompra,
+                LocalDateTime.now(),
+                "FINALIZADA",
+                direccionEnvio,
+                BigDecimal.valueOf(descuento));
 
         // 4. Guardar la orden
         ordenRepository.save(orden);
@@ -124,71 +124,80 @@ public class OrdenServiceImpl implements OrdenService {
 
     }
 
-    /*@Transactional
-    public Orden finalizarCompra(Usuario usuario, Integer direccionId) {
-
-        // 1. Obtener el carrito del usuario
-        Carrito carrito = carritoRepository.findByUsuarioIdAndEstado(usuario.getId(), EstadoCarrito.ACTIVO)
-                .orElseThrow(() -> new EstadoInvalidoException("El carrito esta vacio"));
-
-        // 2. Verificar el stock de los productos en el carrito
-        for (ItemCarrito item : carrito.getItemsCarrito()) {
-            Producto producto = item.getProducto();
-            if (producto.getStock() - producto.getStock_minimo() < item.getCantidad()) {
-                throw new StockInsuficienteException(
-                        "No hay suficiente stock para el producto: " + producto.getNombre());
-            }
-            if (!"activo".equalsIgnoreCase(producto.getEstado())) {
-                throw new EstadoInvalidoException("El producto con ID: " + producto.getId() + " está desactivado.");
-            }
-
-        }
-
-        // 5. Calcular el total de la compra
-        BigDecimal totalCompra = carrito.getItemsCarrito().stream()
-                .map(item -> item.getPrecio_unitario().multiply(new BigDecimal(item.getCantidad())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        Direccion direccionEnvio = direccionService.getDireccionById(direccionId)
-                .orElseThrow(() -> new NoEncontradoException("Dirección de envío no encontrada"));
-
-
-        // 6. Crear la orden
-        Orden orden = new Orden(usuario, totalCompra, LocalDateTime.now(), "FINALIZADA", direccionEnvio,
-                BigDecimal.ZERO);
-
-        // 7. Guardar la orden
-        ordenRepository.save(orden);
-
-        // 8. Crear los detalles de la orden y actualizar el stock de los productos
-        for (ItemCarrito item : carrito.getItemsCarrito()) {
-            BigDecimal subtotal = item.getPrecio_unitario().multiply(BigDecimal.valueOf(item.getCantidad()));
-
-            // Crear el detalle de la orden
-            DetalleOrden detalle = new DetalleOrden(item.getCantidad(), item.getPrecio_unitario(), subtotal, orden,
-            item.getProducto());
-            detalleOrdenRepository.save(detalle);
-            orden.getItemsOrden().add(detalle);
-
-            // Actualizar el stock del producto
-            Producto producto = item.getProducto();
-            producto.setStock(producto.getStock() - item.getCantidad());
-            productoRepository.save(producto);
-        }
-
-        // 10. Vaciar el carrito
-        carrito.getItemsCarrito().clear();
-        carrito.setEstado(EstadoCarrito.VACIO);
-
-        carrito.setFechaActivacion(null);
-
-        // 11. Guardar el carrito vacío
-        carritoRepository.save(carrito);
-
-        // 12. Devolver la orden
-        return orden;
-
-    }*/
+    /*
+     * @Transactional
+     * public Orden finalizarCompra(Usuario usuario, Integer direccionId) {
+     * 
+     * // 1. Obtener el carrito del usuario
+     * Carrito carrito = carritoRepository.findByUsuarioIdAndEstado(usuario.getId(),
+     * EstadoCarrito.ACTIVO)
+     * .orElseThrow(() -> new EstadoInvalidoException("El carrito esta vacio"));
+     * 
+     * // 2. Verificar el stock de los productos en el carrito
+     * for (ItemCarrito item : carrito.getItemsCarrito()) {
+     * Producto producto = item.getProducto();
+     * if (producto.getStock() - producto.getStock_minimo() < item.getCantidad()) {
+     * throw new StockInsuficienteException(
+     * "No hay suficiente stock para el producto: " + producto.getNombre());
+     * }
+     * if (!"activo".equalsIgnoreCase(producto.getEstado())) {
+     * throw new EstadoInvalidoException("El producto con ID: " + producto.getId() +
+     * " está desactivado.");
+     * }
+     * 
+     * }
+     * 
+     * // 5. Calcular el total de la compra
+     * BigDecimal totalCompra = carrito.getItemsCarrito().stream()
+     * .map(item -> item.getPrecio_unitario().multiply(new
+     * BigDecimal(item.getCantidad())))
+     * .reduce(BigDecimal.ZERO, BigDecimal::add);
+     * 
+     * Direccion direccionEnvio = direccionService.getDireccionById(direccionId)
+     * .orElseThrow(() -> new
+     * NoEncontradoException("Dirección de envío no encontrada"));
+     * 
+     * 
+     * // 6. Crear la orden
+     * Orden orden = new Orden(usuario, totalCompra, LocalDateTime.now(),
+     * "FINALIZADA", direccionEnvio,
+     * BigDecimal.ZERO);
+     * 
+     * // 7. Guardar la orden
+     * ordenRepository.save(orden);
+     * 
+     * // 8. Crear los detalles de la orden y actualizar el stock de los productos
+     * for (ItemCarrito item : carrito.getItemsCarrito()) {
+     * BigDecimal subtotal =
+     * item.getPrecio_unitario().multiply(BigDecimal.valueOf(item.getCantidad()));
+     * 
+     * // Crear el detalle de la orden
+     * DetalleOrden detalle = new DetalleOrden(item.getCantidad(),
+     * item.getPrecio_unitario(), subtotal, orden,
+     * item.getProducto());
+     * detalleOrdenRepository.save(detalle);
+     * orden.getItemsOrden().add(detalle);
+     * 
+     * // Actualizar el stock del producto
+     * Producto producto = item.getProducto();
+     * producto.setStock(producto.getStock() - item.getCantidad());
+     * productoRepository.save(producto);
+     * }
+     * 
+     * // 10. Vaciar el carrito
+     * carrito.getItemsCarrito().clear();
+     * carrito.setEstado(EstadoCarrito.VACIO);
+     * 
+     * carrito.setFechaActivacion(null);
+     * 
+     * // 11. Guardar el carrito vacío
+     * carritoRepository.save(carrito);
+     * 
+     * // 12. Devolver la orden
+     * return orden;
+     * 
+     * }
+     */
 
     @Override
     public Orden obtenerOrden(int usuarioId, int ordenId) {
@@ -218,8 +227,9 @@ public class OrdenServiceImpl implements OrdenService {
 
     public OrdenResponseDTO convertirAOrdenResponse(Orden orden) {
         double subtotal = 0.0;
-        double descuentoTotal = 0.0;
+        BigDecimal descuentoTotal = new BigDecimal(0);
         double total = 0.0;
+        descuentoTotal = orden.getDescuento() != null ? orden.getDescuento() : new BigDecimal("0.0");
 
         List<ItemOrdenDTO> items = new java.util.ArrayList<>();
         for (DetalleOrden detalle : orden.getItemsOrden()) {
@@ -231,7 +241,6 @@ public class OrdenServiceImpl implements OrdenService {
             double descuentoItem = subtotalItem - totalItem;
 
             subtotal += subtotalItem;
-            descuentoTotal += descuentoItem;
             total += totalItem;
 
             items.add(new ItemOrdenDTO(
@@ -249,13 +258,16 @@ public class OrdenServiceImpl implements OrdenService {
                 ? orden.getFecha().toString()
                 : "";
 
+        BigDecimal totalRedondeado = BigDecimal.valueOf(redondear(total));
+        BigDecimal totalConDescuento = totalRedondeado.subtract(descuentoTotal);
+
         return new OrdenResponseDTO(
                 orden.getId(),
                 fechaFormateada,
                 orden.getEstado(),
                 redondear(subtotal),
-                redondear(descuentoTotal),
-                redondear(total),
+                descuentoTotal,
+                totalConDescuento.doubleValue(),
                 direccionStr,
                 items);
     }
