@@ -15,10 +15,13 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 import com.uade.ecommerce.service.OrdenService;
 import com.uade.ecommerce.service.UsuarioService;
+
+import lombok.Data;
 
 @RestController
 @RequestMapping("ordenes")
@@ -34,16 +37,28 @@ public class OrdenController {
     public static class FinalizarCompraRequest {
         public Integer usuarioId; // Se añadió un ID de usuario al request
         public Integer direccionId; // null para retiro en tienda
+        public List<ItemCompraRequest> items;
+    }
+
+    @Data
+    public static class ItemCompraRequest {
+        public Integer productoId;
+        public Integer cantidad;
+        public BigDecimal precioUnitario; // El precio final ya calculado por el front
     }
 
     // POST para finalizar compra
     @PostMapping
     public ResponseEntity<OrdenResponseDTO> finalizarCompra(
             @RequestBody FinalizarCompraRequest request) {
-        // Se obtiene el usuario directamente desde el body del request
-        Usuario usuario = usuarioService.getUsuarioById(request.usuarioId)
-                .orElseThrow(() -> new NoEncontradoException("Usuario no encontrado"));
-        Orden orden = ordenService.finalizarCompra(usuario, request.direccionId);
+        
+        // El servicio manejará ahora la lógica completa
+        Orden orden = ordenService.crearOrden(
+            request.usuarioId, 
+            request.direccionId, 
+            request.items // Pasamos la lista de ítems
+        ); 
+        
         OrdenResponseDTO dto = ordenService.convertirAOrdenResponse(orden);
         return ResponseEntity.ok(dto);
     }
