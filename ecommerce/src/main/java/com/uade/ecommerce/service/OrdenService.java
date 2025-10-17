@@ -10,7 +10,7 @@ import com.uade.ecommerce.entity.dto.OrdenResponseDTO;
 public interface OrdenService {
     //Orden finalizarCompra(Usuario usuario, Integer direccionId); // Método para finalizar la compra y crear una orden
 
-    Orden crearOrden(Integer usuarioId, Integer direccionId, List<ItemCompraRequest> items); // ¡Nueva firma!
+    public Orden crearOrden(Integer usuarioId, Integer direccionId, List<ItemCompraRequest> items, Integer descuento); // ¡Nueva firma!
 
     Orden obtenerOrden(int usuarioId, int ordenId); // Método para obtener una orden específica de un usuario
 

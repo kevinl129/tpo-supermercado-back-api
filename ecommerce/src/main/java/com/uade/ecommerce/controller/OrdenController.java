@@ -38,6 +38,7 @@ public class OrdenController {
         public Integer usuarioId; // Se añadió un ID de usuario al request
         public Integer direccionId; // null para retiro en tienda
         public List<ItemCompraRequest> items;
+        public Integer descuento;
     }
 
     @Data
@@ -56,7 +57,9 @@ public class OrdenController {
         Orden orden = ordenService.crearOrden(
             request.usuarioId, 
             request.direccionId, 
-            request.items // Pasamos la lista de ítems
+            request.items,
+            request.descuento 
+            
         ); 
         
         OrdenResponseDTO dto = ordenService.convertirAOrdenResponse(orden);

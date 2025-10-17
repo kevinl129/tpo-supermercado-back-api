@@ -41,7 +41,7 @@ public class OrdenServiceImpl implements OrdenService {
     private DireccionService direccionService;
 
     @Transactional
-    public Orden crearOrden(Integer usuarioId, Integer direccionId, List<ItemCompraRequest> items) { // ¡Nueva firma!
+    public Orden crearOrden(Integer usuarioId, Integer direccionId, List<ItemCompraRequest> items, Integer descuento) { // ¡Nueva firma!
 
         // 1. Obtener Usuario y Dirección (la lógica de obtener usuario se mueve al service)
         Usuario usuario = usuarioService.getUsuarioById(usuarioId)
@@ -78,10 +78,10 @@ public class OrdenServiceImpl implements OrdenService {
 
             // Cálculo del subtotal (Usamos el precioUnitario que envió el front)
             BigDecimal cantidad = new BigDecimal(itemRequest.getCantidad());
-            BigDecimal precioUnitario = itemRequest.getPrecioUnitario(); 
+             BigDecimal precioUnitario = producto.getPrecio(); 
             BigDecimal subtotal = precioUnitario.multiply(cantidad);
 
-            totalCompra = totalCompra.add(subtotal);
+            totalCompra = totalCompra.add(subtotal).subtract(BigDecimal.valueOf(descuento));
 
             // Preparamos el detalle de la orden
             DetalleOrden detalle = new DetalleOrden(
@@ -101,7 +101,7 @@ public class OrdenServiceImpl implements OrdenService {
             LocalDateTime.now(), 
             "FINALIZADA", 
             direccionEnvio,
-            BigDecimal.ZERO // Ajustar si tienes lógica de descuento
+            BigDecimal.valueOf(descuento)
         );
 
         // 4. Guardar la orden
@@ -218,7 +218,7 @@ public class OrdenServiceImpl implements OrdenService {
 
     public OrdenResponseDTO convertirAOrdenResponse(Orden orden) {
         double subtotal = 0.0;
-        double descuentoTotal = 0.0;
+        BigDecimal descuentoTotal = new BigDecimal(0);
         double total = 0.0;
 
         List<ItemOrdenDTO> items = new java.util.ArrayList<>();
@@ -231,7 +231,7 @@ public class OrdenServiceImpl implements OrdenService {
             double descuentoItem = subtotalItem - totalItem;
 
             subtotal += subtotalItem;
-            descuentoTotal += descuentoItem;
+            descuentoTotal = orden.getDescuento() != null ? orden.getDescuento() : new BigDecimal("0.0");
             total += totalItem;
 
             items.add(new ItemOrdenDTO(
@@ -249,13 +249,16 @@ public class OrdenServiceImpl implements OrdenService {
                 ? orden.getFecha().toString()
                 : "";
 
+        BigDecimal totalRedondeado = BigDecimal.valueOf(redondear(total));
+        BigDecimal totalConDescuento = totalRedondeado.subtract(descuentoTotal);
+
         return new OrdenResponseDTO(
                 orden.getId(),
                 fechaFormateada,
                 orden.getEstado(),
                 redondear(subtotal),
-                redondear(descuentoTotal),
-                redondear(total),
+                descuentoTotal,
+                totalConDescuento.doubleValue(),
                 direccionStr,
                 items);
     }
