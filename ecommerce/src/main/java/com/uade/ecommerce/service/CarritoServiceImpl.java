@@ -11,6 +11,7 @@ import com.uade.ecommerce.exception.NoEncontradoException;
 import com.uade.ecommerce.exception.ParametroFueraDeRangoException;
 import com.uade.ecommerce.exception.StockInsuficienteException;
 import com.uade.ecommerce.repository.CarritoRepository;
+import com.uade.ecommerce.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -28,26 +29,52 @@ public class CarritoServiceImpl implements CarritoService {
     @Autowired
     private ProductoService productoService;
 
+    @Autowired
+    private UsuarioService usuarioService;
+
     @Override
     public CarritoResponse convertirACarritoResponse(Carrito carrito) {
         List<ItemCarritoDTO> items = carrito.getItemsCarrito().stream()
                 .map(item -> new ItemCarritoDTO(
                         item.getProducto().getId(),
                         item.getProducto().getNombre(),
+                        // ✅ CORRECCIÓN DTO: Obtener la URL de la primera imagen
+                        item.getProducto().getImagenes().stream()
+                            .map(Imagen::getImagen) // Asume que la entidad Imagen tiene getImagen()
+                            .findFirst()
+                            .orElse(""), 
                         item.getCantidad(),
-                        item.getPrecio_unitario().doubleValue(), // Corregido: getPrecioUnitario
-                        item.getPrecio_unitario().doubleValue() * item.getCantidad())) // Corregido: getPrecioUnitario
+                        item.getPrecio_unitario().doubleValue(),
+                        item.getPrecio_unitario().doubleValue() * item.getCantidad()))
                 .collect(Collectors.toList());
 
         double total = items.stream()
                 .mapToDouble(ItemCarritoDTO::getSubtotal)
                 .sum();
 
+        // Se pasan los 4 parámetros que exige el constructor de CarritoResponse
         return new CarritoResponse(
                 carrito.getId(),
                 carrito.getEstado().toString(),
-                items,
+                items, 
                 total);
+    }
+
+    public Carrito obtenerOCrearCarritoPorUsuarioId(Long usuarioId) {
+        return carritoRepository.findByUsuarioIdAndEstadoConItems(usuarioId.intValue(), EstadoCarrito.ACTIVO)
+                .or(() -> carritoRepository.findByUsuarioIdAndEstadoConItems(usuarioId.intValue(), EstadoCarrito.VACIO))
+                .orElseGet(() -> {
+                    Usuario usuario = usuarioService.getUsuarioById(usuarioId.intValue())
+                            .orElseThrow(() -> new NoEncontradoException("Usuario no encontrado con ID: " + usuarioId));
+                    
+                    Carrito nuevoCarrito = Carrito.builder()
+                        .usuario(usuario)
+                        .estado(EstadoCarrito.VACIO)
+                        .fechaCreacion(LocalDateTime.now())
+                        .build();
+                    
+                    return carritoRepository.save(nuevoCarrito);
+                });
     }
 
     @Override
@@ -64,11 +91,11 @@ public class CarritoServiceImpl implements CarritoService {
             throw new DatoDuplicadoException("El usuario ya tiene un carrito.");
         }
 
-        Carrito nuevoCarrito = Carrito.builder() // Usando el patrón Builder
-            .usuario(usuario)
-            .estado(EstadoCarrito.VACIO)
-            .fechaCreacion(LocalDateTime.now())
-            .build();
+        Carrito nuevoCarrito = Carrito.builder()
+                .usuario(usuario)
+                .estado(EstadoCarrito.VACIO)
+                .fechaCreacion(LocalDateTime.now())
+                .build();
         
         carritoRepository.save(nuevoCarrito);
         return nuevoCarrito;
@@ -93,6 +120,7 @@ public class CarritoServiceImpl implements CarritoService {
     @Override
     @Transactional
     public Carrito agregarProducto(Usuario usuario, int productoId, int cantidad) {
+        // ✅ CORRECCIÓN DE TIPEO: De VACIVO a VACIO (asumo que esta es la versión del fix)
         Carrito carrito = carritoRepository.findByUsuarioIdAndEstadoConItems(usuario.getId(), EstadoCarrito.VACIO)
                 .or(() -> carritoRepository.findByUsuarioIdAndEstadoConItems(usuario.getId(), EstadoCarrito.ACTIVO))
                 .orElseGet(() -> crearCarrito(usuario));
@@ -104,32 +132,49 @@ public class CarritoServiceImpl implements CarritoService {
             throw new EstadoInvalidoException("El producto con ID: " + producto.getId() + " está desactivado.");
         }
 
-        if (producto.getStock() - producto.getStock_minimo() < cantidad) {
-            throw new StockInsuficienteException("No hay suficiente stock para el producto con ID: " + productoId);
-        }
-
-        Optional<ItemCarrito> itemExistente = carrito.getItemsCarrito().stream()
+        // 1. Obtener la cantidad que ya tiene el producto en el carrito
+        Optional<ItemCarrito> itemExistenteOpt = carrito.getItemsCarrito().stream()
                 .filter(item -> item.getProducto().getId() == productoId)
                 .findFirst();
+        
+        int cantidadActual = itemExistenteOpt.map(ItemCarrito::getCantidad).orElse(0);
+        int nuevaCantidadTotal = cantidadActual + cantidad;
+        
+        // 2. Calcular el stock disponible y mínimo
+        int stockDisponibleTotal = producto.getStock();
+        int stockMinimo = producto.getStock_minimo();
 
-        if (itemExistente.isPresent()) {
-            ItemCarrito item = itemExistente.get();
-            int nuevaCantidad = item.getCantidad() + cantidad;
-            if (nuevaCantidad < 0) {
+        // 3. VALIDACIÓN: No se puede superar el stock total
+        if (nuevaCantidadTotal > stockDisponibleTotal) {
+            throw new StockInsuficienteException("No se puede agregar más productos que el stock disponible (" + stockDisponibleTotal + " u).");
+        }
+        
+        // 4. VALIDACIÓN: Que el stock que queda en la tienda no baje del Stock Mínimo
+        if (stockDisponibleTotal - nuevaCantidadTotal < stockMinimo) {
+            throw new StockInsuficienteException("La cantidad solicitada dejaría el stock en niveles críticos (" + stockMinimo + " u mínimas).");
+        }
+
+
+        // 5. Aplicar los cambios
+        if (itemExistenteOpt.isPresent()) {
+            ItemCarrito item = itemExistenteOpt.get();
+            
+            if (nuevaCantidadTotal < 0) {
                 throw new IllegalArgumentException("La cantidad no puede ser menor a cero.");
             }
-            if (nuevaCantidad == 0) {
+            
+            if (nuevaCantidadTotal == 0) {
                 carrito.getItemsCarrito().remove(item);
             } else {
-                if (nuevaCantidad > producto.getStock()) {
-                    throw new StockInsuficienteException("No se puede agregar más productos que el stock disponible.");
-                }
-                item.setCantidad(nuevaCantidad);
+                item.setCantidad(nuevaCantidadTotal);
             }
+        
         } else {
+            // Si el item no existe
             if (cantidad <= 0) {
                 throw new IllegalArgumentException("No se puede agregar un producto con cantidad cero o negativa.");
             }
+            
             BigDecimal precioConDescuento = producto.getPrecio();
             if (producto.getDescuento() != null && producto.getDescuento().compareTo(BigDecimal.ZERO) > 0) {
                 BigDecimal descuento = producto.getDescuento().divide(new BigDecimal(100));
@@ -141,6 +186,7 @@ public class CarritoServiceImpl implements CarritoService {
             carrito.getItemsCarrito().add(nuevoItem);
         }
 
+        // 6. Actualizar estado del carrito
         if (carrito.getItemsCarrito().isEmpty()) {
             carrito.setEstado(EstadoCarrito.VACIO);
         } else if (carrito.getEstado() == EstadoCarrito.VACIO) {
@@ -211,7 +257,6 @@ public class CarritoServiceImpl implements CarritoService {
         }
     }
     
-    // Implementaciones de los nuevos métodos...
     @Override
     public Carrito obtenerCarritoPorId(int carritoId) {
         return carritoRepository.findById(carritoId)
@@ -230,9 +275,24 @@ public class CarritoServiceImpl implements CarritoService {
             throw new EstadoInvalidoException("El producto con ID: " + producto.getId() + " está desactivado.");
         }
 
-        if (producto.getStock() - producto.getStock_minimo() < cantidad) {
-            throw new StockInsuficienteException("No hay suficiente stock para el producto con ID: " + productoId);
+        // --- VALIDACIÓN DE STOCK (USANDO LÓGICA CENTRAL) ---
+        int cantidadActual = carrito.getItemsCarrito().stream()
+                .filter(item -> item.getProducto().getId() == productoId)
+                .findFirst()
+                .map(ItemCarrito::getCantidad)
+                .orElse(0);
+        
+        int nuevaCantidadTotal = cantidadActual + cantidad;
+        int stockDisponibleTotal = producto.getStock();
+        int stockMinimo = producto.getStock_minimo();
+
+        if (nuevaCantidadTotal > stockDisponibleTotal) {
+            throw new StockInsuficienteException("No se puede agregar más productos que el stock disponible (" + stockDisponibleTotal + " u).");
         }
+        if (stockDisponibleTotal - nuevaCantidadTotal < stockMinimo) {
+            throw new StockInsuficienteException("La cantidad solicitada dejaría el stock en niveles críticos (" + stockMinimo + " u mínimas).");
+        }
+        // --- FIN VALIDACIÓN ---
 
         Optional<ItemCarrito> itemExistente = carrito.getItemsCarrito().stream()
                 .filter(item -> item.getProducto().getId() == productoId)
@@ -240,17 +300,15 @@ public class CarritoServiceImpl implements CarritoService {
 
         if (itemExistente.isPresent()) {
             ItemCarrito item = itemExistente.get();
-            int nuevaCantidad = item.getCantidad() + cantidad;
-            if (nuevaCantidad < 0) {
+            
+            if (nuevaCantidadTotal < 0) {
                 throw new IllegalArgumentException("La cantidad no puede ser menor a cero.");
             }
-            if (nuevaCantidad == 0) {
+            
+            if (nuevaCantidadTotal == 0) {
                 carrito.getItemsCarrito().remove(item);
             } else {
-                if (nuevaCantidad > producto.getStock()) {
-                    throw new StockInsuficienteException("No se puede agregar más productos que el stock disponible.");
-                }
-                item.setCantidad(nuevaCantidad);
+                item.setCantidad(nuevaCantidadTotal);
             }
         } else {
             if (cantidad <= 0) {
@@ -276,7 +334,7 @@ public class CarritoServiceImpl implements CarritoService {
 
         return carritoRepository.save(carrito);
     }
-
+    
     @Override
     @Transactional
     public Carrito eliminarProductoPorId(int carritoId, int productoId, int cantidad) {
@@ -325,7 +383,6 @@ public class CarritoServiceImpl implements CarritoService {
         return carritoRepository.save(carrito);
     }
     
-    // Implementación del nuevo método
     @Override
     public List<Carrito> findAllCarritos() {
         return carritoRepository.findAll();
