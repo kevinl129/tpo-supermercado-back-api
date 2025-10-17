@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.uade.ecommerce.service.CategoriaService;
 import java.net.URI;
+import java.util.List;
+import java.util.stream.Collectors;
 import com.uade.ecommerce.entity.Categoria;
 import com.uade.ecommerce.exception.NoEncontradoException;
 import com.uade.ecommerce.exception.ParametroFueraDeRangoException;
@@ -31,10 +33,8 @@ public class CategoriaController {
 
     // Este método maneja la solicitud GET para obtener una lista de categorías.
     // Ejemplos de uso:
-    // • GET /Categorias → retorna todas las
-    // • GET /Categorias?page=1&size=10 → retorna la página 1 con 10 categorías por
-    // pagina
-
+    // • GET /categorias → retorna todas las
+    // • GET /categorias?page=1&size=10 → retorna la página 1 con 10 categorías por pagina
     @GetMapping
     public ResponseEntity<Page<categoriaResponse>> getCategorias(
             @RequestParam(required = false) Integer page,
@@ -68,9 +68,26 @@ public class CategoriaController {
         return ResponseEntity.ok(categoriasResponse);
     }
 
+    // 👇 NUEVO: Obtener TODAS las categorías sin paginación (para selects/dropdowns)
+    @GetMapping("/all")
+    public ResponseEntity<List<categoriaResponse>> getAllCategoriasSinPaginacion() {
+        Page<Categoria> allCategorias = categoriaService.getCategorias(PageRequest.of(0, Integer.MAX_VALUE));
+        
+        if (allCategorias.getTotalElements() == 0) {
+            throw new NoEncontradoException("No hay categorías cargadas.");
+        }
+        
+        List<categoriaResponse> categoriasResponse = allCategorias.getContent()
+            .stream()
+            .map(this::convertToCategoriaResponse)
+            .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(categoriasResponse);
+    }
+
     // Este método maneja la solicitud GET para obtener una categoría por su ID.
     // Ejemplo de uso:
-    // • GET /Categorias/5 → retorna la categoría con ID 5, si existe.
+    // • GET /categorias/5 → retorna la categoría con ID 5, si existe.
     @GetMapping("/{categoriaID}")
     public ResponseEntity<categoriaResponse> getCategoriaById(@PathVariable int categoriaID) {
         Optional<Categoria> result = categoriaService.getCategoriaById(categoriaID);
@@ -88,8 +105,7 @@ public class CategoriaController {
 
     // Este método maneja la solicitud POST para crear una nueva categoría.
     // Ejemplo de uso:
-    // • POST /Categorias → crea una nueva categoría con los datos proporcionados en
-
+    // • POST /categorias → crea una nueva categoría con los datos proporcionados
     @PostMapping
     public ResponseEntity<Object> createCategory(
             @RequestBody com.uade.ecommerce.entity.dto.CategoryRequest categoryRequest) {
@@ -99,8 +115,7 @@ public class CategoriaController {
             throw new ParametroFueraDeRangoException("El nombre de la categoría no puede estar vacío.");
         }
 
-        // validar que el si el parent id no es null entonces tiene que ser mayor o
-        // igual 1
+        // validar que el si el parent id no es null entonces tiene que ser mayor o igual 1
         if (categoryRequest.getParentId() != null && categoryRequest.getParentId() < 1) {
             throw new ParametroFueraDeRangoException("El ID de la categoría padre debe ser mayor o igual a 1.");
         }
@@ -113,8 +128,7 @@ public class CategoriaController {
 
     // Este método maneja la solicitud DELETE para eliminar todas las categorías.
     // Ejemplo de uso:
-    // • DELETE /Categorias → elimina todas las categorías.
-
+    // • DELETE /categorias → elimina todas las categorías.
     @DeleteMapping
     public ResponseEntity<String> deleteAllCategories() {
         // Comprobar si existen categorías
@@ -127,14 +141,12 @@ public class CategoriaController {
 
         // operación fue exitosa!
         return ResponseEntity.ok("Todas las categorías fueron eliminadas correctamente.");
-
     }
 
     // Este método maneja la solicitud DELETE para eliminar una categoría por su ID.
     // Ejemplo de uso:
-    // • DELETE /Categorias/5 → elimina la categoría con ID 5, si existe.
+    // • DELETE /categorias/5 → elimina la categoría con ID 5, si existe.
     // Si la categoría tiene hijos, se eliminarán automáticamente
-
     @DeleteMapping("/{categoriaID}")
     public ResponseEntity<String> deleteCategoryById(@PathVariable int categoriaID) {
         Optional<Categoria> categoria = categoriaService.getCategoriaById(categoriaID);
@@ -146,13 +158,11 @@ public class CategoriaController {
         categoriaService.deleteCategory(categoriaID);
 
         return ResponseEntity.ok("La categoría con ID " + categoriaID + " fue eliminada exitosamente.");
-
     }
 
     // Este método maneja la solicitud PUT para actualizar una categoría por su ID.
     // Ejemplo de uso:
-    // • PUT /Categorias/5 → actualiza la categoría con ID 5, si existe.
-    // Si la categoría tiene hijos, se eliminarán automáticamente
+    // • PUT /categorias/5 → actualiza la categoría con ID 5, si existe.
     @PutMapping("/{categoriaID}")
     public ResponseEntity<Categoria> updateCategory(@PathVariable int categoriaID,
             @RequestBody com.uade.ecommerce.entity.dto.CategoryRequest categoryRequest) {
@@ -161,7 +171,6 @@ public class CategoriaController {
 
         // Devolver la categoría actualizada con un código de estado 200 OK
         return ResponseEntity.ok(updatedCategory);
-
     }
 
     // convertir Categoria a CategoriaResponse
@@ -170,9 +179,8 @@ public class CategoriaController {
             return null;
         }
 
-    
         return new categoriaResponse(
                 categoria.getId(),
                 categoria.getNombre());
     }
-} 
+}

@@ -42,7 +42,7 @@ public class Producto {
     @Column(length = 50)
     private String marca;
 
-    @Column(nullable = false, precision = 5, scale = 2, columnDefinition = "DECIMAL(5,2) DEFAULT 0.00")
+    @Column(nullable = true, precision = 5, scale = 2, columnDefinition = "DECIMAL(5,2) DEFAULT 0.00")
     private BigDecimal descuento;
 
     @ManyToOne
