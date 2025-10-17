@@ -1,7 +1,10 @@
 package com.uade.ecommerce.controller;
 
+import com.uade.ecommerce.controller.dto.LoginRequest;
+import com.uade.ecommerce.controller.dto.UsuarioLoginResponse;
 import com.uade.ecommerce.entity.Usuario;
 import com.uade.ecommerce.service.UsuarioService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -180,6 +183,49 @@ public class UsuarioController {
 
         return ResponseEntity.ok(new ApiResponse<>(msg, safeUsuarios));
     }
+
+  /*@PostMapping("/login")
+public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
+    // ... (Tu lógica de validación de usuario y contraseña)
+    
+    if (!usuarioOpt.isPresent() || !usuario.getPassword().equals(loginRequest.getPassword())) {
+         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario o contraseña incorrectos.");
+    }
+    Usuario usuario = usuarioOpt.get();
+    
+    // --- REEMPLAZO DEL JWT: Establecer la Sesión ---
+    
+    // 1. Invalidar la sesión actual (o anterior) por seguridad.
+    // Esto asegura que se emita un nuevo ID de sesión (JSESSIONID).
+    session.invalidate(); 
+    
+    // 2. Obtener una nueva sesión automáticamente (al llamar a getSession(true) o al usarla después de invalidar)
+    // Para simplificar sin Spring Security, inyecta HttpServletRequest
+    
+    // *Para obtener la nueva sesión después de invalidar, necesitas el Request.*
+    // Si no quieres inyectar HttpServletRequest, la forma más sencilla en Spring Boot
+    // es usar un atributo de sesión único y dejar que Spring/Servlet Container lo maneje:
+    
+    // **NOTA CLAVE:** Si la sesión se invalida, la siguiente llamada al controlador
+    // necesitaría una nueva sesión. Aquí inyectaremos `HttpServletRequest` para ser explícitos.
+    
+    // ¡¡DEBES INYECTAR HttpServletRequest!!
+    // La forma más robusta es inyectar `HttpServletRequest` y la `HttpSession` para manejar la invalidación/creación:
+    
+    // YA QUE NO QUIERES USAR SPRING SECURITY, ESTA ES LA FORMA CORRECTA:
+    // **Modifica la firma del método para inyectar HttpServletRequest**
+    // public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request) { ... }
+    
+    // --- Solución sin cambiar la firma (Usando el Session inyectado y asumiendo creación automática):
+    
+    session.setAttribute("LOGGED_USER_ID", usuario.getId());
+    session.setAttribute("LOGGED_USER_ROLE", usuario.getRol());
+    
+    // ------------------------------------------------
+    
+    // ... (Tu código de respuesta)
+    return ResponseEntity.ok(response);
+}*/
     
     // Todos los demás métodos y DTOs de seguridad/login han sido eliminados por solicitud.
 }
