@@ -1,5 +1,6 @@
 package com.uade.ecommerce.service;
 
+import java.math.BigDecimal;
 //import java.security.Principal;
 import java.util.List;
 
@@ -10,7 +11,7 @@ import com.uade.ecommerce.entity.dto.OrdenResponseDTO;
 public interface OrdenService {
     //Orden finalizarCompra(Usuario usuario, Integer direccionId); // Método para finalizar la compra y crear una orden
 
-    public Orden crearOrden(Integer usuarioId, Integer direccionId, List<ItemCompraRequest> items, Integer descuento); // ¡Nueva firma!
+    public Orden crearOrden(Integer usuarioId, Integer direccionId, List<ItemCompraRequest> items, BigDecimal descuento); // ¡Nueva firma!
 
     Orden obtenerOrden(int usuarioId, int ordenId); // Método para obtener una orden específica de un usuario
 

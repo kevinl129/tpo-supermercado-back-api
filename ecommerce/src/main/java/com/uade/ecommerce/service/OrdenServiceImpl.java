@@ -41,7 +41,7 @@ public class OrdenServiceImpl implements OrdenService {
     private DireccionService direccionService;
 
     @Transactional
-    public Orden crearOrden(Integer usuarioId, Integer direccionId, List<ItemCompraRequest> items, Integer descuento) { // ¡Nueva firma!
+    public Orden crearOrden(Integer usuarioId, Integer direccionId, List<ItemCompraRequest> items, BigDecimal descuento) { // ¡Nueva firma!
 
         // 1. Obtener Usuario y Dirección (la lógica de obtener usuario se mueve al service)
         Usuario usuario = usuarioService.getUsuarioById(usuarioId)
@@ -81,7 +81,7 @@ public class OrdenServiceImpl implements OrdenService {
              BigDecimal precioUnitario = producto.getPrecio(); 
             BigDecimal subtotal = precioUnitario.multiply(cantidad);
 
-            totalCompra = totalCompra.add(subtotal).subtract(BigDecimal.valueOf(descuento));
+            totalCompra = totalCompra.add(subtotal);
 
             // Preparamos el detalle de la orden
             DetalleOrden detalle = new DetalleOrden(
@@ -94,14 +94,16 @@ public class OrdenServiceImpl implements OrdenService {
             detalles.add(detalle);
         }
 
+        BigDecimal totalFinalConDescuento = totalCompra.subtract(descuento); 
+        
         // 3. Crear la orden
         Orden orden = new Orden(
             usuario, 
-            totalCompra, 
+            totalFinalConDescuento, 
             LocalDateTime.now(), 
             "FINALIZADA", 
             direccionEnvio,
-            BigDecimal.valueOf(descuento)
+            descuento
         );
 
         // 4. Guardar la orden
