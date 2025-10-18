@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-//import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -32,7 +31,6 @@ public class Categoria {
     @Column(length = 50, nullable = false, unique = true)
     private String nombre;
 
-    // Se añadió el campo `parentId` para mapear la relación jerárquica
     @Column(name = "parent_id")
     private Integer parentId;
 

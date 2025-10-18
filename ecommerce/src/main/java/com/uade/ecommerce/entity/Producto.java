@@ -23,7 +23,6 @@ import lombok.Data;
 public class Producto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    // 🚨 MODIFICACIÓN CLAVE: Cambiado de 'int' a 'Integer' para permitir que el valor sea NULL en el DTO/Entidad
     // cuando se recibe un POST/PUT sin ID en el cuerpo. Esto soluciona el error 400.
     private Integer id;
 
@@ -37,7 +36,7 @@ public class Producto {
     private BigDecimal precio;
 
     @Column(nullable = false)
-    private int stock; // 'int' está bien aquí, pero considera 'Integer' si stock pudiera ser nulo temporalmente.
+    private int stock; 
 
     @Column(length = 50)
     private String marca;

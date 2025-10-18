@@ -38,9 +38,9 @@ public class CarritoServiceImpl implements CarritoService {
                 .map(item -> new ItemCarritoDTO(
                         item.getProducto().getId(),
                         item.getProducto().getNombre(),
-                        // ✅ CORRECCIÓN DTO: Obtener la URL de la primera imagen
+                        // Obtener la URL de la primera imagen
                         item.getProducto().getImagenes().stream()
-                            .map(Imagen::getImagen) // Asume que la entidad Imagen tiene getImagen()
+                            .map(Imagen::getImagen) 
                             .findFirst()
                             .orElse(""), 
                         item.getCantidad(),
@@ -120,7 +120,6 @@ public class CarritoServiceImpl implements CarritoService {
     @Override
     @Transactional
     public Carrito agregarProducto(Usuario usuario, int productoId, int cantidad) {
-        // ✅ CORRECCIÓN DE TIPEO: De VACIVO a VACIO (asumo que esta es la versión del fix)
         Carrito carrito = carritoRepository.findByUsuarioIdAndEstadoConItems(usuario.getId(), EstadoCarrito.VACIO)
                 .or(() -> carritoRepository.findByUsuarioIdAndEstadoConItems(usuario.getId(), EstadoCarrito.ACTIVO))
                 .orElseGet(() -> crearCarrito(usuario));
@@ -144,12 +143,12 @@ public class CarritoServiceImpl implements CarritoService {
         int stockDisponibleTotal = producto.getStock();
         int stockMinimo = producto.getStock_minimo();
 
-        // 3. VALIDACIÓN: No se puede superar el stock total
+        // 3. No se puede superar el stock total
         if (nuevaCantidadTotal > stockDisponibleTotal) {
             throw new StockInsuficienteException("No se puede agregar más productos que el stock disponible (" + stockDisponibleTotal + " u).");
         }
         
-        // 4. VALIDACIÓN: Que el stock que queda en la tienda no baje del Stock Mínimo
+        // 4. Que el stock que queda en la tienda no baje del Stock Mínimo
         if (stockDisponibleTotal - nuevaCantidadTotal < stockMinimo) {
             throw new StockInsuficienteException("La cantidad solicitada dejaría el stock en niveles críticos (" + stockMinimo + " u mínimas).");
         }
@@ -275,7 +274,7 @@ public class CarritoServiceImpl implements CarritoService {
             throw new EstadoInvalidoException("El producto con ID: " + producto.getId() + " está desactivado.");
         }
 
-        // --- VALIDACIÓN DE STOCK (USANDO LÓGICA CENTRAL) ---
+        // --- VALIDACIÓN DE STOCK ---
         int cantidadActual = carrito.getItemsCarrito().stream()
                 .filter(item -> item.getProducto().getId() == productoId)
                 .findFirst()

@@ -33,12 +33,6 @@ public class CategoriaController {
     @Autowired
     private CategoriaService categoriaService;
 
-    // Este método maneja la solicitud GET para obtener una lista de categorías.
-    // Ejemplos de uso:
-    // • GET /Categorias → retorna todas las
-    // • GET /Categorias?page=1&size=10 → retorna la página 1 con 10 categorías por
-    // pagina
-
     @GetMapping
     public ResponseEntity<Page<categoriaResponse>> getCategorias(
             @RequestParam(required = false) Integer page,
@@ -80,7 +74,6 @@ public class CategoriaController {
 public ResponseEntity<List<categoriaResponse>> getAllCategorias() {
     List<Categoria> categorias = categoriaService.getCategorias(PageRequest.of(0, Integer.MAX_VALUE)).getContent();
     
-    // Asumiendo que tienes un método para convertir Categoria a CategoriaResponse
     List<categoriaResponse> response = categorias.stream()
             .map(this::convertToCategoriaResponse) 
             .collect(Collectors.toList());
@@ -116,8 +109,6 @@ public ResponseEntity<List<categoriaResponse>> getAllCategorias() {
             throw new ParametroFueraDeRangoException("El nombre de la categoría no puede estar vacío.");
         }
 
-        // validar que el si el parent id no es null entonces tiene que ser mayor o
-        // igual 1
         if (categoryRequest.getParentId() != null && categoryRequest.getParentId() < 1) {
             throw new ParametroFueraDeRangoException("El ID de la categoría padre debe ser mayor o igual a 1.");
         }
@@ -150,7 +141,6 @@ public ResponseEntity<List<categoriaResponse>> getAllCategorias() {
     // Este método maneja la solicitud DELETE para eliminar una categoría por su ID.
     // Ejemplo de uso:
     // • DELETE /Categorias/5 → elimina la categoría con ID 5, si existe.
-    // Si la categoría tiene hijos, se eliminarán automáticamente
 
     @DeleteMapping("/{categoriaID}")
     public ResponseEntity<String> deleteCategoryById(@PathVariable int categoriaID) {
@@ -169,14 +159,12 @@ public ResponseEntity<List<categoriaResponse>> getAllCategorias() {
     // Este método maneja la solicitud PUT para actualizar una categoría por su ID.
     // Ejemplo de uso:
     // • PUT /Categorias/5 → actualiza la categoría con ID 5, si existe.
-    // Si la categoría tiene hijos, se eliminarán automáticamente
     @PutMapping("/{categoriaID}")
     public ResponseEntity<Categoria> updateCategory(@PathVariable int categoriaID,
             @RequestBody com.uade.ecommerce.entity.dto.CategoryRequest categoryRequest) {
 
         Categoria updatedCategory = categoriaService.updateCategory(categoriaID, categoryRequest);
 
-        // Devolver la categoría actualizada con un código de estado 200 OK
         return ResponseEntity.ok(updatedCategory);
 
     }

@@ -12,7 +12,7 @@ import lombok.Data;
 
 @Entity
 @Data
-//Es tabla detalle_orden en sql
+// tabla detalle_orden en sql
 public class DetalleOrden {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

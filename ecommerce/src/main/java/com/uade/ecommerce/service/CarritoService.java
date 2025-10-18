@@ -4,7 +4,6 @@ import com.uade.ecommerce.entity.Carrito;
 import com.uade.ecommerce.entity.Usuario;
 import com.uade.ecommerce.entity.dto.CarritoResponse;
 import java.util.List;
-//import java.util.Optional;
 
 public interface CarritoService {
     Carrito crearCarrito(Usuario usuario);
@@ -21,6 +20,5 @@ public interface CarritoService {
     Carrito eliminarProductoPorId(int carritoId, int productoId, int cantidad);
     Carrito vaciarCarritoPorId(int carritoId);
     
-    // Se agregó este nuevo método
     List<Carrito> findAllCarritos();
 }

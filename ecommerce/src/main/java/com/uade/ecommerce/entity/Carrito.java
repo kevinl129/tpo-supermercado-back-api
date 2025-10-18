@@ -18,13 +18,13 @@ import jakarta.persistence.EnumType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import lombok.Builder; // Asegúrate de tener esta importación
+import lombok.Builder; 
 
 @Data
 @Entity
-@Builder // Esta anotación te permite inicializar objetos de forma segura
+@Builder // Inicializar objetos de forma segura
 @NoArgsConstructor
-@AllArgsConstructor // Este constructor es incompatible con la inicialización del campo
+@AllArgsConstructor 
 
 public class Carrito {
     @Id

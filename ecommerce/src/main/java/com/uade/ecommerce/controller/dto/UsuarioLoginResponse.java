@@ -17,7 +17,6 @@ public class UsuarioLoginResponse {
         this.rol = rol;
     }
 
-    // getters y setters
     public int getId() { return id; }
     public String getUsername() { return username; }
     public String getEmail() { return email; }

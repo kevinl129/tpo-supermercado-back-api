@@ -15,7 +15,7 @@ public class OrdenResponseDTO {
     private double subtotal;
     private BigDecimal descuentoTotal;
     private double total;
-    private String direccion; // o null si es retiro en tienda
+    private String direccion; 
     private List<ItemOrdenDTO> items;
 
 

@@ -17,7 +17,6 @@ import com.uade.ecommerce.entity.Producto;
 import com.uade.ecommerce.repository.ImagenRepository;
 import com.uade.ecommerce.repository.ProductoRepository;
 import com.uade.ecommerce.exception.ProductoNotFoundException;
-//import com.uade.ecommerce.exception.ProductoNotFoundException;
 
 @Service
 public class ImagenService {
@@ -60,7 +59,7 @@ public class ImagenService {
             try {
                 Files.deleteIfExists(Paths.get(imagen.getImagen()));
             } catch (IOException e) {
-                // loggear si querés; continuar con el borrado en BD
+                // loggear si querés, continuar con el borrado en BD
             }
             imagenRepository.deleteById(imagenId);
         } else {
@@ -69,7 +68,7 @@ public class ImagenService {
     }
 
     public void eliminarImagenesPorProducto(int productoId) {
-        // opcional: borrar archivos fisicos (iterar y borrar)
+        // opcional: borrar archivos fisicos
         List<Imagen> imgs = imagenRepository.findByProductoId(productoId);
         for (Imagen img : imgs) {
             try { Files.deleteIfExists(Paths.get(img.getImagen())); } catch (IOException ignored) {}

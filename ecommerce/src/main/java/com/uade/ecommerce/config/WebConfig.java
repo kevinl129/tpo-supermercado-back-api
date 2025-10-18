@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    // Tu configuración de CORS (está perfecta, no la tocamos)
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") 
@@ -22,7 +21,6 @@ public class WebConfig implements WebMvcConfigurer {
             .maxAge(3600); 
     }
 
-    // ✅ CORRECCIÓN: Configuración robusta para servir imágenes (usa una ruta absoluta)
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         
@@ -31,8 +29,7 @@ public class WebConfig implements WebMvcConfigurer {
         String uploadPath = uploadDir.toFile().getAbsolutePath();
 
         // 2. Mapea la URL /uploads/** a la carpeta física 'uploads/'
-        // Usamos "file:/" + la ruta absoluta. Esto es clave para que funcione
-        // en todos los sistemas operativos (especialmente Windows).
+        // Usamos "file:/" + la ruta absoluta. 
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:/" + uploadPath + "/");
     }

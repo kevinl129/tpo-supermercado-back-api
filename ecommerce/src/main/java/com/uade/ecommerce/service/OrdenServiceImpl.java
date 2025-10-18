@@ -27,8 +27,7 @@ import com.uade.ecommerce.exception.StockInsuficienteException;
 public class OrdenServiceImpl implements OrdenService {
     @Autowired
     private OrdenRepository ordenRepository;
-    //@Autowired
-    //private CarritoRepository carritoRepository;
+    
     @Autowired
     private UsuarioService usuarioService;
     @Autowired
@@ -41,9 +40,9 @@ public class OrdenServiceImpl implements OrdenService {
     private DireccionService direccionService;
 
     @Transactional
-    public Orden crearOrden(Integer usuarioId, Integer direccionId, List<ItemCompraRequest> items, BigDecimal descuento) { // ¡Nueva firma!
+    public Orden crearOrden(Integer usuarioId, Integer direccionId, List<ItemCompraRequest> items, BigDecimal descuento) { 
 
-        // 1. Obtener Usuario y Dirección (la lógica de obtener usuario se mueve al service)
+        // 1. Obtener Usuario y Dirección 
         Usuario usuario = usuarioService.getUsuarioById(usuarioId)
                 .orElseThrow(() -> new NoEncontradoException("Usuario no encontrado"));
 
@@ -59,7 +58,7 @@ public class OrdenServiceImpl implements OrdenService {
         }
 
 
-        // 2. Verificar Stock, Precios y calcular el Total (Iteramos sobre el Request del Front)
+        // 2. Verificar Stock, Precios y calcular el Total
         BigDecimal totalCompra = BigDecimal.ZERO;
         List<DetalleOrden> detalles = new ArrayList<>();
 
@@ -76,7 +75,7 @@ public class OrdenServiceImpl implements OrdenService {
                         "No hay suficiente stock para el producto: " + producto.getNombre());
             }
 
-            // Cálculo del subtotal (Usamos el precioUnitario que envió el front)
+            // Cálculo del subtotal
             BigDecimal cantidad = new BigDecimal(itemRequest.getCantidad());
              BigDecimal precioUnitario = producto.getPrecio(); 
             BigDecimal subtotal = precioUnitario.multiply(cantidad);
@@ -88,7 +87,7 @@ public class OrdenServiceImpl implements OrdenService {
                 itemRequest.getCantidad(), 
                 precioUnitario, 
                 subtotal, 
-                null, // La orden se setea después
+                null, 
                 producto
             );
             detalles.add(detalle);
@@ -111,9 +110,9 @@ public class OrdenServiceImpl implements OrdenService {
 
         // 5. Crear los detalles de la orden y actualizar el stock
         for (DetalleOrden detalle : detalles) {
-            detalle.setOrden(orden); // Asignamos la orden recién creada
+            detalle.setOrden(orden); 
             detalleOrdenRepository.save(detalle);
-            orden.getItemsOrden().add(detalle); // Añadimos al objeto orden para el DTO de respuesta
+            orden.getItemsOrden().add(detalle); 
 
             // Actualizar el stock del producto
             Producto producto = detalle.getProducto();
@@ -125,72 +124,6 @@ public class OrdenServiceImpl implements OrdenService {
         return orden;
 
     }
-
-    /*@Transactional
-    public Orden finalizarCompra(Usuario usuario, Integer direccionId) {
-
-        // 1. Obtener el carrito del usuario
-        Carrito carrito = carritoRepository.findByUsuarioIdAndEstado(usuario.getId(), EstadoCarrito.ACTIVO)
-                .orElseThrow(() -> new EstadoInvalidoException("El carrito esta vacio"));
-
-        // 2. Verificar el stock de los productos en el carrito
-        for (ItemCarrito item : carrito.getItemsCarrito()) {
-            Producto producto = item.getProducto();
-            if (producto.getStock() - producto.getStock_minimo() < item.getCantidad()) {
-                throw new StockInsuficienteException(
-                        "No hay suficiente stock para el producto: " + producto.getNombre());
-            }
-            if (!"activo".equalsIgnoreCase(producto.getEstado())) {
-                throw new EstadoInvalidoException("El producto con ID: " + producto.getId() + " está desactivado.");
-            }
-
-        }
-
-        // 5. Calcular el total de la compra
-        BigDecimal totalCompra = carrito.getItemsCarrito().stream()
-                .map(item -> item.getPrecio_unitario().multiply(new BigDecimal(item.getCantidad())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        Direccion direccionEnvio = direccionService.getDireccionById(direccionId)
-                .orElseThrow(() -> new NoEncontradoException("Dirección de envío no encontrada"));
-
-
-        // 6. Crear la orden
-        Orden orden = new Orden(usuario, totalCompra, LocalDateTime.now(), "FINALIZADA", direccionEnvio,
-                BigDecimal.ZERO);
-
-        // 7. Guardar la orden
-        ordenRepository.save(orden);
-
-        // 8. Crear los detalles de la orden y actualizar el stock de los productos
-        for (ItemCarrito item : carrito.getItemsCarrito()) {
-            BigDecimal subtotal = item.getPrecio_unitario().multiply(BigDecimal.valueOf(item.getCantidad()));
-
-            // Crear el detalle de la orden
-            DetalleOrden detalle = new DetalleOrden(item.getCantidad(), item.getPrecio_unitario(), subtotal, orden,
-            item.getProducto());
-            detalleOrdenRepository.save(detalle);
-            orden.getItemsOrden().add(detalle);
-
-            // Actualizar el stock del producto
-            Producto producto = item.getProducto();
-            producto.setStock(producto.getStock() - item.getCantidad());
-            productoRepository.save(producto);
-        }
-
-        // 10. Vaciar el carrito
-        carrito.getItemsCarrito().clear();
-        carrito.setEstado(EstadoCarrito.VACIO);
-
-        carrito.setFechaActivacion(null);
-
-        // 11. Guardar el carrito vacío
-        carritoRepository.save(carrito);
-
-        // 12. Devolver la orden
-        return orden;
-
-    }*/
 
     @Override
     public Orden obtenerOrden(int usuarioId, int ordenId) {
@@ -271,9 +204,6 @@ public class OrdenServiceImpl implements OrdenService {
         }
         // Ajusta los campos según la estructura de tu clase Direccion
         return direccion.getCalle() + " " + direccion.getNumero() +
-        // (direccion.getPiso() != null ? ", Piso " + direccion.getPiso() : "") +
-        // (direccion.getDepartamento() != null ? ", Depto " +
-        // direccion.getDepartamento() : "") +
                 ", " + direccion.getCiudad() +
                 ", " + direccion.getProvincia() +
                 ", " + direccion.getCodigoPostal();
