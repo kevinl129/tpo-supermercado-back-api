@@ -22,14 +22,14 @@ public class DireccionController {
     @Autowired
     private UsuarioService usuarioService;
 
-    // Listar todas las direcciones (solo para testing)
+    // Listar todas las direcciones
     @GetMapping
     public ResponseEntity<List<Direccion>> getDirecciones() {
         List<Direccion> direcciones = direccionService.getAllDirecciones();
         return ResponseEntity.ok(direcciones);
     }
 
-    // 👇 ESTE ES EL IMPORTANTE: Filtrar por usuario
+    //Filtrar por usuario
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<List<Direccion>> getDireccionesByUsuarioId(@PathVariable int usuarioId) {
         Optional<Usuario> usuario = usuarioService.getUsuarioById(usuarioId);

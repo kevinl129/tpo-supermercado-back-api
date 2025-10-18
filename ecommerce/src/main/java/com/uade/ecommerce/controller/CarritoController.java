@@ -24,7 +24,7 @@ public class CarritoController {
     @Autowired
     private UsuarioService usuarioService;
 
-    // --- Endpoints usando ID de Usuario (SOLUCIÓN al error Principal is null) ---
+    // --- Endpoints usando ID de Usuario 
 
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<CarritoResponse> getCarritoPorUsuario(@PathVariable int usuarioId) {

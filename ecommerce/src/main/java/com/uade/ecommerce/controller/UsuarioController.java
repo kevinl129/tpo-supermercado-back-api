@@ -1,7 +1,7 @@
 package com.uade.ecommerce.controller;
 
 import com.uade.ecommerce.controller.dto.LoginRequest;
-import com.uade.ecommerce.controller.dto.LoginResponse; // Importamos la nueva clase
+import com.uade.ecommerce.controller.dto.LoginResponse; 
 import com.uade.ecommerce.controller.dto.UsuarioLoginResponse;
 import com.uade.ecommerce.entity.Usuario;
 import com.uade.ecommerce.service.UsuarioService;
@@ -56,14 +56,13 @@ public class UsuarioController {
         }
     }
 
-    // ✅ MÉTODO DE LOGIN FUNCIONAL Y DESCOMENTADO
+    // LOGIN FUNCIONAL
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         Optional<Usuario> usuarioOpt = usuarioService.getUsuarioByUsername(loginRequest.getUsername());
 
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
-            // IMPORTANTE: En una app real, esto debería usar un comparador de contraseñas encriptadas.
             if (usuario.getPassword().equals(loginRequest.getPassword())) {
                 // Creamos un token simple para la sesión
                 String token = "fake-jwt-token-for-user-" + usuario.getId();
@@ -127,7 +126,7 @@ public class UsuarioController {
         }
     }
 
-    // 5. Actualización parcial de usuario (PATCH)
+    // 5. Actualización parcial de usuario
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<UsuarioProfileDTO>> patchUsuario(@PathVariable int id, @RequestBody Usuario usuarioPatch) {
         try {

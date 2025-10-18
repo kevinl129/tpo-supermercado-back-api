@@ -10,9 +10,9 @@ public class ProductoRequest {
 
     private String nombre;
     private String descripcion;
-    private List<String> imagenes = new ArrayList<>();// puede ser null
+    private List<String> imagenes = new ArrayList<>();
     private BigDecimal precio;
-    private String marca;// puede ser null
+    private String marca;
     private int categoria_id;
     private int stock = 0;
     private BigDecimal descuento = BigDecimal.ZERO;

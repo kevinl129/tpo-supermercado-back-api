@@ -9,7 +9,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-//import lombok.RequiredArgsConstructor; // Usado para constructor con campos 'final'
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity

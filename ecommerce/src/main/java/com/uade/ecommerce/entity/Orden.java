@@ -37,7 +37,7 @@ public class Orden {
 
     @ManyToOne
     @JoinColumn(name = "direccion_id")
-    private Direccion direccionEnvio; // Si es null, es retiro en tienda
+    private Direccion direccionEnvio; 
 
     @Column(nullable = true, precision = 10, scale = 2, columnDefinition = "DECIMAL(5,2) DEFAULT 0.00")
     private BigDecimal descuento;

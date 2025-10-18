@@ -36,8 +36,8 @@ public class OrdenController {
 
     // DTO para finalizar compra
     public static class FinalizarCompraRequest {
-        public Integer usuarioId; // Se añadió un ID de usuario al request
-        public Integer direccionId; // null para retiro en tienda
+        public Integer usuarioId; 
+        public Integer direccionId; 
         public List<ItemCompraRequest> items;
         public BigDecimal descuento;
     }
@@ -46,7 +46,7 @@ public class OrdenController {
     public static class ItemCompraRequest {
         public Integer productoId;
         public Integer cantidad;
-        public BigDecimal precioUnitario; // El precio final ya calculado por el front
+        public BigDecimal precioUnitario;
     }
 
     // POST para finalizar compra
@@ -54,7 +54,6 @@ public class OrdenController {
     public ResponseEntity<OrdenResponseDTO> finalizarCompra(
             @RequestBody FinalizarCompraRequest request) {
         
-        // El servicio manejará ahora la lógica completa
         Orden orden = ordenService.crearOrden(
             request.usuarioId, 
             request.direccionId, 

@@ -250,10 +250,8 @@ public class ProductoController {
     public ResponseEntity<?> createProducto(@RequestBody ProductoRequest producto)
             throws ProductoDuplicateException, ParametroFueraDeRangoException {
         // Se puede crear un producto
-        /*if (producto.getCategoria_id() < 1) {
             // Si el id de la categoria es menor a 1, se lanza una excepción
-            throw new ParametroFueraDeRangoException("El id del producto debe ser mayor a 0");
-        }*/
+            
         if (producto.getNombre() == null || producto.getNombre().isEmpty()) {
             // Si el nombre es nulo o vacío, se lanza una excepción
             throw new ParametroFueraDeRangoException("El nombre del producto no puede ser nulo o vacío");
@@ -262,10 +260,8 @@ public class ProductoController {
             // Si el precio es nulo o menor a 0, se lanza una excepción
             throw new ParametroFueraDeRangoException("El precio no puede ser nulo o menor a 0");
         }
-        /*if (producto.getCategoria_id() < 1) {
             // Si el id de la categoria es menor a 1, se lanza una excepción
-            throw new ParametroFueraDeRangoException("El id de la categoría debe ser mayor a 0");
-        }*/
+            
         if (producto.getDescripcion() == null || producto.getDescripcion().isEmpty()) {
             // Si la descripción es nula o vacía, se lanza una excepción
             throw new ParametroFueraDeRangoException("La descripción no puede ser nula o vacía");

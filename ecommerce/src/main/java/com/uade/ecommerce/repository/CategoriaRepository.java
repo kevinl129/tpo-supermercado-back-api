@@ -7,9 +7,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CategoriaRepository extends JpaRepository<Categoria, Integer> {
-    // Se corrigió el nombre del método para que coincida con el campo `parentId` de la entidad
     List<Categoria> findByParentId(int parentId);
 
-    // Se corrigió el nombre del método para que coincida con el campo `parentId`
     boolean existsByNombreAndParentId(String nombre, Integer parentId);
 }

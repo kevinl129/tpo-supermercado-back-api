@@ -15,7 +15,7 @@ public class DireccionService {
     @Autowired
     private DireccionRepository direccionRepository;
 
-    // NUEVO: Método para obtener todas las direcciones
+    // Método para obtener todas las direcciones
     public List<Direccion> getAllDirecciones() {
         return direccionRepository.findAll();
     }

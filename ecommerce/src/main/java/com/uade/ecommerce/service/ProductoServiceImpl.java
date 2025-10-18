@@ -1,8 +1,6 @@
 package com.uade.ecommerce.service;
 
 import java.math.BigDecimal;
-// import java.util.ArrayList; // Ya no se usa para imágenes
-// import java.util.List;    // Ya no se usa para imágenes
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -10,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import com.uade.ecommerce.controller.ProductoRequest;
 import com.uade.ecommerce.entity.Categoria;
-// import com.uade.ecommerce.entity.Imagen; // Ya no se usa aquí
 import com.uade.ecommerce.entity.Producto;
 import com.uade.ecommerce.exception.ProductoDuplicateException;
 import com.uade.ecommerce.exception.ProductoNotFoundException;
@@ -22,10 +19,6 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Autowired
     private ProductoRepository productoRepository;
-
-    // Ya no necesitamos ImagenRepository aquí si solo lo usábamos para los bucles
-    // @Autowired
-    // private ImagenRepository imagenRepository; 
 
     @Autowired
     private CategoriaService categorias;
@@ -50,7 +43,6 @@ public class ProductoServiceImpl implements ProductoService {
         return productoRepository.findByMarca(marca);
     }
 
-    // ... (Otros métodos 'get' que tenías) ...
     @Override
     public Optional<Producto> getProductoByPrecio(BigDecimal precioMax, BigDecimal precioMin) {
         return productoRepository.findByPrecio(precioMax, precioMin);
@@ -71,7 +63,7 @@ public class ProductoServiceImpl implements ProductoService {
     public Producto createProducto(ProductoRequest productoRequest)
             throws ProductoDuplicateException {
 
-        // 1. Verificación de duplicado (tu lógica existente)
+        // 1. Verificación de duplicado
         if (productoRepository.existsByNombreAndDescripcionAndMarcaAndCategoria(
                 productoRequest.getNombre(),
                 productoRequest.getDescripcion(),
@@ -93,13 +85,8 @@ public class ProductoServiceImpl implements ProductoService {
         nuevoProducto.setEstado(productoRequest.getEstado());
         nuevoProducto.setDescuento(productoRequest.getDescuento());
 
-        // 3. ✅ CAMBIO CLAVE: Guardar y devolver.
+        //Guardar y devolver.
         Producto productoGuardado = productoRepository.save(nuevoProducto);
-        
-        // ▼▼▼ LÓGICA DE IMÁGENES ELIMINADA ▼▼▼
-        // Ya no creamos imágenes desde la lista de strings.
-        // Eso ahora se maneja 100% por ImagenService.
-        
         return productoGuardado;
     }
 
@@ -123,15 +110,9 @@ public class ProductoServiceImpl implements ProductoService {
         producto.setEstado(productoRequest.getEstado());
         producto.setDescuento(productoRequest.getDescuento());
 
-        // ▼▼▼ LÍNEA ELIMINADA ▼▼▼
-        // producto.getImagenes().clear(); // ¡NO BORRAMOS LAS IMÁGENES!
-       
-        // 3. ✅ CAMBIO CLAVE: Simplemente guardamos los cambios.
+              
+        // guardamos los cambios.
         Producto productoActualizado = productoRepository.save(producto);
-        
-        // ▼▼▼ LÓGICA DE IMÁGENES ELIMINADA ▼▼▼
-        // Ya no borramos ni creamos imágenes desde la lista de strings.
-        
         return productoActualizado;
     }
 

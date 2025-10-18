@@ -22,24 +22,23 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     @Override
     public Categoria createCategory(CategoryRequest categoryRequest) {
-        // Paso 1: Si es subcategoría, validar que el padre exista
+        // Si es subcategoría, validar que el padre exista
         Optional<Categoria> parentCategory = validateParentCategoryExists(categoryRequest.getParentId());
 
-        // Paso 2: Validar que no exista una categoría con el mismo nombre y mismo padre
+        // Validar que no exista una categoría con el mismo nombre y mismo padre
         validateCategoryDuplicate(categoryRequest.getNombre(), categoryRequest.getParentId());
 
-        // Paso 3: Crear la nueva categoría
+        // Crear la nueva categoría
         Categoria nuevaCategoria = new Categoria();
         nuevaCategoria.setNombre(categoryRequest.getNombre());
 
-        // Paso 5: Guardar la nueva categoría
+        // Guardar la nueva categoría
         Categoria savedCategory = categoriaRepository.save(nuevaCategoria);
 
-        // Paso 6: Si tiene un padre, agregar la subcategoría a la lista de
-        // subcategorías del padre
+        // Si tiene un padre, agregar la subcategoría a la lista de subcategorías del padre
         if (parentCategory.isPresent()) {
             Categoria parent = parentCategory.get();
-            categoriaRepository.save(parent); // Persistir el cambio en el padre
+            categoriaRepository.save(parent); 
         }
 
         return savedCategory;
@@ -110,7 +109,6 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     @Override
     public boolean existsByNombreAndPadre(String nombre, Integer parentId) {
-        // CORREGIDO: Se cambió 'existsByNombreAndParentCategoriaId' a 'existsByNombreAndParentId'
         return categoriaRepository.existsByNombreAndParentId(nombre, parentId);
     }
 
@@ -121,7 +119,6 @@ public class CategoriaServiceImpl implements CategoriaService {
             throw new ParametroFueraDeRangoException("El ID de la categoría padre debe ser mayor o igual a 1.");
         }
 
-        // CORREGIDO: Se cambió 'findByParentCategoriaId' a 'findByParentId'
         List<Categoria> subcategorias = categoriaRepository.findByParentId(parentId);
 
         // Si no se encuentran subcategorías, lanzamos una excepción
@@ -154,7 +151,6 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     // Método para validar si ya existe una categoría con el mismo nombre y padre
     private void validateCategoryDuplicate(String nombre, Integer parentId) {
-        // CORREGIDO: Se cambió 'existsByNombreAndParentCategoriaId' a 'existsByNombreAndParentId'
         if (categoriaRepository.existsByNombreAndParentId(nombre, parentId)) {
             throw new DatoDuplicadoException("Ya existe una categoría con el nombre '" + nombre + "' para ese padre.");
         }
