@@ -38,6 +38,9 @@ public class OrdenServiceImpl implements OrdenService {
     private DetalleOrdenRepository detalleOrdenRepository;
 
     @Autowired
+    private CarritoRepository carritoRepository;
+
+    @Autowired
     private DireccionService direccionService;
 
     @Transactional
@@ -121,7 +124,23 @@ public class OrdenServiceImpl implements OrdenService {
             productoRepository.save(producto);
         }
 
-        // 6. Devolver la orden
+        // 6.vaciar carrito
+        try {
+            Carrito carrito = carritoRepository.findByUsuarioIdAndEstado(usuarioId, EstadoCarrito.ACTIVO)
+                    .orElse(null);
+
+            if (carrito != null) {
+                carrito.getItemsCarrito().clear();
+                carrito.setEstado(EstadoCarrito.VACIO);
+                carrito.setFechaActivacion(null);
+                carritoRepository.save(carrito);
+            } else {
+                 System.out.println("WARN: No se encontró carrito ACTIVO para usuario ID: " + usuarioId);
+            }
+        } catch (Exception e) {
+             System.err.println("ERROR: No se pudo limpiar carrito para usuario ID: " + usuarioId + " - " + e.getMessage());
+        }
+
         return orden;
 
     }
