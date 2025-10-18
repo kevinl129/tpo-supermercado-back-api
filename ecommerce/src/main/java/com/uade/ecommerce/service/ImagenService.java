@@ -1,6 +1,5 @@
 package com.uade.ecommerce.service;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,7 +20,7 @@ import com.uade.ecommerce.exception.ProductoNotFoundException;
 @Service
 public class ImagenService {
 
-    private static final String UPLOAD_DIR = "uploads/";
+    private final Path rootUbicacion; // Absolute path for uploads
 
     @Autowired
     private ImagenRepository imagenRepository;
@@ -29,19 +28,29 @@ public class ImagenService {
     @Autowired
     private ProductoRepository productoRepository;
 
+    // Constructor to create the uploads directory using an absolute path
+    public ImagenService() {
+        this.rootUbicacion = Paths.get("uploads").toAbsolutePath().normalize();
+        try {
+            Files.createDirectories(this.rootUbicacion);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not initialize storage location", e);
+        }
+    }
+
     public Imagen guardarImagen(int productoId, MultipartFile archivo) throws IOException, ProductoNotFoundException {
         Producto producto = productoRepository.findById(productoId)
                 .orElseThrow(() -> new ProductoNotFoundException("Producto no encontrado con id: " + productoId));
 
-        File carpeta = new File(UPLOAD_DIR);
-        if (!carpeta.exists()) carpeta.mkdirs();
-
         String nombreArchivo = System.currentTimeMillis() + "_" + archivo.getOriginalFilename().replaceAll("\\s+","_");
-        Path rutaArchivo = Paths.get(UPLOAD_DIR, nombreArchivo);
-        Files.write(rutaArchivo, archivo.getBytes());
+        Path rutaArchivoDestino = this.rootUbicacion.resolve(nombreArchivo); // Absolute path for saving
+
+        Files.write(rutaArchivoDestino, archivo.getBytes()); // Save the file
 
         Imagen imagen = new Imagen();
-        imagen.setImagen(UPLOAD_DIR + nombreArchivo);
+        // Store the RELATIVE path in the database (e.g., "uploads/...")
+        String rutaParaDB = Paths.get("uploads").resolve(nombreArchivo).toString().replace("\\", "/");
+        imagen.setImagen(rutaParaDB);
         imagen.setProducto(producto);
 
         return imagenRepository.save(imagen);
@@ -55,23 +64,31 @@ public class ImagenService {
         Optional<Imagen> opt = imagenRepository.findById(imagenId);
         if (opt.isPresent()) {
             Imagen imagen = opt.get();
-            // borrar archivo fisico si existe
             try {
-                Files.deleteIfExists(Paths.get(imagen.getImagen()));
+                // Resolve absolute path to delete the physical file
+                Path nombreArchivo = Paths.get(imagen.getImagen()).getFileName();
+                Path archivoABorrar = this.rootUbicacion.resolve(nombreArchivo);
+                Files.deleteIfExists(archivoABorrar);
             } catch (IOException e) {
-                // loggear si querés, continuar con el borrado en BD
+                System.err.println("Failed to delete physical file: " + imagen.getImagen() + " - " + e.getMessage());
             }
             imagenRepository.deleteById(imagenId);
         } else {
-            throw new RuntimeException("Imagen no encontrada con id: " + imagenId);
+            System.err.println("Imagen no encontrada con id: " + imagenId);
         }
     }
 
     public void eliminarImagenesPorProducto(int productoId) {
-        // opcional: borrar archivos fisicos
         List<Imagen> imgs = imagenRepository.findByProductoId(productoId);
         for (Imagen img : imgs) {
-            try { Files.deleteIfExists(Paths.get(img.getImagen())); } catch (IOException ignored) {}
+            try {
+                // Resolve absolute path to delete physical files
+                Path nombreArchivo = Paths.get(img.getImagen()).getFileName();
+                Path archivoABorrar = this.rootUbicacion.resolve(nombreArchivo);
+                Files.deleteIfExists(archivoABorrar);
+            } catch (IOException e) {
+                 System.err.println("Failed to delete physical file during product image cleanup: " + img.getImagen() + " - " + e.getMessage());
+            }
         }
         imagenRepository.deleteByProductoId(productoId);
     }

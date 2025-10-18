@@ -1,36 +1,49 @@
 package com.uade.ecommerce.config;
 
+// ✅ IMPORT THESE NEW CLASSES
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+import java.util.Arrays;
+// ---
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
+// import org.springframework.web.servlet.config.annotation.CorsRegistry; // No longer needed
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") 
-            .allowedOrigins("http://localhost:5174") 
-            .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS") 
-            .allowedHeaders("*") 
-            .allowCredentials(true) 
-            .maxAge(3600); 
+    // ✅ THIS IS THE NEW GLOBAL CORS FILTER
+    @Bean
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowCredentials(true);
+        config.addAllowedOrigin("http://localhost:5174"); // Your frontend origin
+        config.addAllowedHeader("*"); // Allow ALL headers
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")); // Allow ALL methods
+
+        source.registerCorsConfiguration("/**", config); // Apply to ALL paths
+        return new CorsFilter(source);
     }
 
+    // ✅ THIS METHOD STAYS THE SAME (For viewing images)
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        
-        // 1. Obtiene la ruta de la carpeta 'uploads' relativa al directorio actual
         Path uploadDir = Paths.get("uploads");
         String uploadPath = uploadDir.toFile().getAbsolutePath();
-
-        // 2. Mapea la URL /uploads/** a la carpeta física 'uploads/'
-        // Usamos "file:/" + la ruta absoluta. 
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:/" + uploadPath + "/");
     }
+
+    // ✅ THE addCorsMappings METHOD IS REMOVED/COMMENTED OUT
+    /*
+    @Override
+    public void addCorsMappings(CorsRegistry registry) { ... }
+    */
 }
