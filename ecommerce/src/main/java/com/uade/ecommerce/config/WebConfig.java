@@ -5,25 +5,35 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    // ✅ CORRECCIÓN 1: Configuración de CORS para permitir todos los métodos
+    // Tu configuración de CORS (está perfecta, no la tocamos)
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // Permite CORS en TODAS las rutas
+        registry.addMapping("/**") 
             .allowedOrigins("http://localhost:5174") 
-            .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS") // VITAL: Permite todos los métodos necesarios
+            .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS") 
             .allowedHeaders("*") 
             .allowCredentials(true) 
             .maxAge(3600); 
     }
 
-    // ✅ CORRECCIÓN 2: Configuración para servir archivos estáticos (imágenes)
+    // ✅ CORRECCIÓN: Configuración robusta para servir imágenes (usa una ruta absoluta)
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Mapea la URL /uploads/** a la carpeta física 'uploads/' en la raíz del proyecto
+        
+        // 1. Obtiene la ruta de la carpeta 'uploads' relativa al directorio actual
+        Path uploadDir = Paths.get("uploads");
+        String uploadPath = uploadDir.toFile().getAbsolutePath();
+
+        // 2. Mapea la URL /uploads/** a la carpeta física 'uploads/'
+        // Usamos "file:/" + la ruta absoluta. Esto es clave para que funcione
+        // en todos los sistemas operativos (especialmente Windows).
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:./uploads/");
+                .addResourceLocations("file:/" + uploadPath + "/");
     }
 }
