@@ -18,7 +18,11 @@ import com.uade.ecommerce.entity.Categoria;
 import com.uade.ecommerce.exception.NoEncontradoException;
 import com.uade.ecommerce.exception.ParametroFueraDeRangoException;
 import com.uade.ecommerce.entity.dto.categoriaResponse;
+
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 
@@ -71,6 +75,19 @@ public class CategoriaController {
     // Este método maneja la solicitud GET para obtener una categoría por su ID.
     // Ejemplo de uso:
     // • GET /Categorias/5 → retorna la categoría con ID 5, si existe.
+
+    @GetMapping("/all")
+public ResponseEntity<List<categoriaResponse>> getAllCategorias() {
+    List<Categoria> categorias = categoriaService.getCategorias(PageRequest.of(0, Integer.MAX_VALUE)).getContent();
+    
+    // Asumiendo que tienes un método para convertir Categoria a CategoriaResponse
+    List<categoriaResponse> response = categorias.stream()
+            .map(this::convertToCategoriaResponse) 
+            .collect(Collectors.toList());
+            
+    return ResponseEntity.ok(response);
+}
+
     @GetMapping("/{categoriaID}")
     public ResponseEntity<categoriaResponse> getCategoriaById(@PathVariable int categoriaID) {
         Optional<Categoria> result = categoriaService.getCategoriaById(categoriaID);
